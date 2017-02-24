@@ -1,0 +1,5 @@
+flask==0.12
+requests==2.13.0
+gevent==1.2.1
+# Only for testing/dev
+tox==2.6.0
