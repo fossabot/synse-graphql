@@ -39,9 +39,32 @@ def make_request(url):
 
 class Rack(graphene.ObjectType):
     id = graphene.String(required=True)
+    cluster_id = graphene.String(required=True)
+
+    # routing table
     is_leader = graphene.Boolean(required=True)
     is_shadow = graphene.Boolean(required=True)
     vec_ip = graphene.String(required=True)
+
+    # asset
+    failed_servers = graphene.String(required=True)
+    server_count = graphene.String(required=True)
+
+    @staticmethod
+    def build(info, cluster_id):
+        _id = info["rack_id"]
+        info.pop("rack_id")
+        return Rack(
+            id=_id,
+            cluster_id=cluster_id,
+            **info,
+            **Rack.get_assets(_id, cluster_id))
+
+    @staticmethod
+    def get_assets(_id, cluster_id):
+        assets = make_request("asset/{0}/{1}".format(cluster_id, _id))
+        return {k: v for k, v in assets.items()
+                if k in ("failed_servers", "server_count")}
 
 
 class Cluster(graphene.ObjectType):
@@ -72,13 +95,8 @@ class Cluster(graphene.ObjectType):
         assets.pop("cluster_id")
         return assets
 
-    def get_rack(self, info):
-        _id = info["rack_id"]
-        info.pop("rack_id")
-        return Rack(id=_id, **info)
-
     def resolve_racks(self, args, context, info):
-        return [self.get_rack(r) for r in self._routing["racks"]]
+        return [Rack.build(r, self.id) for r in self._routing["racks"]]
 
 
 class System(graphene.ObjectType):
@@ -97,4 +115,4 @@ schema = graphene.Schema(
     auto_camelcase=False)
 
 # Example query
-# pprint.pprint(schema.schema.execute("{ clusters { id hardware_version racks { id is_leader } } }").data)
+# pprint.pprint(schema.schema.execute("{ clusters { id hardware_version racks { id failed_servers is_leader } } }").data)

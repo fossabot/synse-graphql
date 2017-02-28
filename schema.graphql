@@ -49,6 +49,7 @@ type ClusterSensor {
 
 type Rack {
   id: String!
+  cluster_id: String!
 
   # Routing table
   is_leader: Boolean!
