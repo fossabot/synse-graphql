@@ -7,6 +7,7 @@
      \/apor IO
 """
 
+import functools
 import graphene
 import requests
 import requests.compat
@@ -37,7 +38,35 @@ def make_request(url):
     return result.json()
 
 
+def get_asset(self, asset, *args, **kwargs):
+    """Fetch the value for a specific asset.
+
+    Gets converted into resolve_asset_name(). See _assets for the list that
+    are using this method as resolve.
+    """
+    return self._request_assets().get(asset, "")
+
+
+def resolve_assets(cls):
+    """Decorator to dynamically resolve fields.
+
+    Add resolve methods for everything in _assets.
+    """
+    for asset in cls._assets:
+        setattr(
+            cls,
+            "resolve_{0}".format(asset),
+            functools.partialmethod(get_asset, asset))
+    return cls
+
+
+@resolve_assets
 class Rack(graphene.ObjectType):
+    _assets = [
+        "failed_servers",
+        "server_count"
+    ]
+
     id = graphene.String(required=True)
     cluster_id = graphene.String(required=True)
 
@@ -50,50 +79,48 @@ class Rack(graphene.ObjectType):
     failed_servers = graphene.String(required=True)
     server_count = graphene.String(required=True)
 
+    @functools.lru_cache(maxsize=1)
+    def _request_assets(self):
+        return make_request(
+            "asset/{0}/{1}".format(self.cluster_id, self.id))
+
+    def get_asset(self, asset, *args, **kwargs):
+        return self._request_assets().get(asset, "")
+
     @staticmethod
     def build(info, cluster_id):
         _id = info["rack_id"]
         info.pop("rack_id")
-        return Rack(
-            id=_id,
-            cluster_id=cluster_id,
-            **info,
-            **Rack.get_assets(_id, cluster_id))
-
-    @staticmethod
-    def get_assets(_id, cluster_id):
-        assets = make_request("asset/{0}/{1}".format(cluster_id, _id))
-        return {k: v for k, v in assets.items()
-                if k in ("failed_servers", "server_count")}
+        return Rack(id=_id, cluster_id=cluster_id, **info)
 
 
+@resolve_assets
 class Cluster(graphene.ObjectType):
-    # Private Vars
     _routing = None  # Needed to build the racks list and saves a request
+    _assets = [
+        "hardware_version",
+        "leader_service_profile",
+        "model_number",
+        "serial_number",
+        "vendor"
+    ]
 
     # Schema
     id = graphene.String(required=True)
     racks = graphene.List(lambda: Rack, required=True)
 
-    hardware_version = graphene.String(
-        name='hardware_version', required=True)
+    hardware_version = graphene.String(required=True)
     leader_service_profile = graphene.String(required=True)
     model_number = graphene.String(required=True)
     serial_number = graphene.String(required=True)
     vendor = graphene.String(required=True)
 
-    @staticmethod
-    def build(_id, _routing):
-        return Cluster(
-            id=_id,
-            _routing=_routing,
-            **Cluster.get_assets(_id))
+    @functools.lru_cache(maxsize=1)
+    def _request_assets(self):
+        return make_request(
+            "asset/{0}".format(self.id)).get("cluster_info", {})
 
-    @staticmethod
-    def get_assets(_id):
-        assets = make_request("asset/{0}".format(_id)).get("cluster_info", {})
-        assets.pop("cluster_id")
-        return assets
+
 
     def resolve_racks(self, args, context, info):
         return [Rack.build(r, self.id) for r in self._routing["racks"]]
@@ -104,7 +131,7 @@ class System(graphene.ObjectType):
 
     def resolve_clusters(self, args, context, info):
         try:
-            return [Cluster.build(c["cluster_id"], c)
+            return [Cluster(id=c["cluster_id"], _routing=c)
                     for c in make_request("routing_table")["clusters"]]
         except Exception as e:
             print(e)
