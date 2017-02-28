@@ -16,7 +16,10 @@ build:
 date := $(shell /bin/date "+%m%d%y-%H%M")
 
 dev: build
-	docker-compose -f graphql_frontend.yml run --service-ports --rm graphql_frontend /bin/sh
+	docker-compose -f docker-compose.yml run --service-ports --rm graphql_frontend /bin/sh
 
 test:
-	docker-compose -f graphql_frontend.yml run --rm graphql_frontend tox
+	docker-compose -f docker-compose.yml run --rm graphql_frontend tox
+
+clean:
+	docker-compose -f docker-compose.yml down
