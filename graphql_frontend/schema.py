@@ -9,6 +9,7 @@
 
 import functools
 import graphene
+import graphene.types.datetime
 import requests
 import requests.compat
 
@@ -120,21 +121,48 @@ class Cluster(graphene.ObjectType):
         return make_request(
             "asset/{0}".format(self.id)).get("cluster_info", {})
 
-
-
     def resolve_racks(self, args, context, info):
         return [Rack.build(r, self.id) for r in self._routing["racks"]]
 
 
+class NotificationSource(graphene.ObjectType):
+    BoardID = graphene.String()
+    DeviceID = graphene.String(required=True)
+    DeviceType = graphene.String(required=True)
+    Field = graphene.String(required=True)
+    RackID = graphene.String()
+    Reading = graphene.String(required=True)
+    ZoneID = graphene.String(required=True)
+
+
+class Notification(graphene.ObjectType):
+    _id = graphene.String(required=True)
+    code = graphene.Int(required=True)
+    resolved_on = graphene.String()
+    severity = graphene.String(required=True)
+    source = graphene.Field(NotificationSource, required=True)
+    status = graphene.String(required=True)
+    text = graphene.String(required=True)
+    timestamp = graphene.String(required=True)
+
+    @staticmethod
+    def build(body):
+        return Notification(
+            source=NotificationSource(**body.pop("source")), **body)
+
+
 class System(graphene.ObjectType):
     clusters = graphene.List(lambda: Cluster, required=True)
+    notifications = graphene.List(lambda: Notification, required=True)
 
     def resolve_clusters(self, args, context, info):
-        try:
-            return [Cluster(id=c["cluster_id"], _routing=c)
-                    for c in make_request("routing_table")["clusters"]]
-        except Exception as e:
-            print(e)
+        return [Cluster(id=c["cluster_id"], _routing=c)
+                for c in make_request("routing_table").get("clusters", [])]
+
+    def resolve_notifications(self, *args, **kwargs):
+        return [Notification.build(d)
+                for d in make_request(
+                    "notifications").get("notifications", [])]
 
 
 schema = graphene.Schema(
@@ -142,4 +170,4 @@ schema = graphene.Schema(
     auto_camelcase=False)
 
 # Example query
-# pprint.pprint(schema.schema.execute("{ clusters { id hardware_version racks { id failed_servers is_leader } } }").data)
+# pprint.pprint(schema.schema.execute("{ notifications { _id source { ZoneID } } clusters { id hardware_version racks { id   is_leader } } }").data)
