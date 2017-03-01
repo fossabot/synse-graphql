@@ -9,7 +9,7 @@
 
 import functools
 import graphene
-import graphene.types.datetime
+import logging
 import requests
 import requests.compat
 
@@ -32,6 +32,7 @@ def login():
 
 
 def make_request(url):
+    logging.debug("REQUEST: {0}".format(url))
     result = SESSION.get(requests.compat.urljoin(BASE_URL, url))
     if result.status_code == 401:
         login()
@@ -61,6 +62,24 @@ def resolve_assets(cls):
     return cls
 
 
+class Device(graphene.ObjectType):
+    pass
+
+
+class Board(graphene.ObjectType):
+    _data = None
+
+    id = graphene.String(required=True)
+    # devices = graphene.List(lambda: Device, required=True)
+
+    @staticmethod
+    def build(data):
+        return Board(id=data.get("board_id"), _data=data)
+
+    def resolve_devices(self, *args, **kwargs):
+        return []
+
+
 @resolve_assets
 class Rack(graphene.ObjectType):
     _assets = [
@@ -80,6 +99,8 @@ class Rack(graphene.ObjectType):
     failed_servers = graphene.String(required=True)
     server_count = graphene.String(required=True)
 
+    boards = graphene.List(lambda: Board, required=True)
+
     @functools.lru_cache(maxsize=1)
     def _request_assets(self):
         return make_request(
@@ -93,6 +114,12 @@ class Rack(graphene.ObjectType):
         _id = info["rack_id"]
         info.pop("rack_id")
         return Rack(id=_id, cluster_id=cluster_id, **info)
+
+    def resolve_boards(self, *args, **kwargs):
+        return [Board.build(b)
+                for b in make_request(
+                    "inventory/{0}/{1}".format(self.cluster_id, self.id)
+                    ).get("clusters", [])[0].get("racks")[0].get("boards")]
 
 
 @resolve_assets
@@ -170,4 +197,13 @@ schema = graphene.Schema(
     auto_camelcase=False)
 
 # Example query
-# pprint.pprint(schema.schema.execute("{ notifications { _id source { ZoneID } } clusters { id hardware_version racks { id   is_leader } } }").data)
+"""
+import importlib
+import pprint
+from graphql_frontend import schema
+import logging
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=getattr(logging, level.upper()))
+pprint.pprint(schema.schema.execute("{ notifications { _id source { ZoneID } } clusters { id hardware_version racks { id   is_leader } } }").data)
+"""

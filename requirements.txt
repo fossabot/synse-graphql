@@ -3,5 +3,3 @@ requests==2.13.0
 gevent==1.2.1
 graphql-flask==1.1.0
 graphene==1.2
-# Only for testing/dev
-tox==2.6.0
