@@ -1,4 +1,4 @@
-""" Schema for GraphQL
+""" Utils to help out with testing
 
     Author: Thomas Rampelberg
     Date:   2/27/2017
@@ -7,11 +7,10 @@
      \/apor IO
 """
 
-import graphene
 import json
+import logging
 import os
 import testtools
-import traceback
 
 import graphql_frontend.schema
 
@@ -20,9 +19,7 @@ class BaseSchemaTest(testtools.TestCase):
 
     def setUp(self):
         super(BaseSchemaTest, self).setUp()
-        self.schema = graphene.Schema(
-            query=graphql_frontend.schema.System,
-            auto_camelcase=False)
+        self.schema = graphql_frontend.schema.create()
 
     def get_query(self, name):
         path = os.path.normpath(os.path.join(
@@ -35,8 +32,9 @@ class BaseSchemaTest(testtools.TestCase):
 
     def assertQuery(self, result):
         for error in result.errors:
-            print(str(error))
-            print(error.message)
+            logging.exception("Query error", exc_info=error)
+            if hasattr(error, "message"):
+                logging.debug(error.message)
         self.assertFalse(result.errors)
         self.output(result)
 

@@ -3,10 +3,10 @@
     racks {
       boards {
         devices {
-          id
-          type
+          __typename
         }
       }
     }
   }
 }
+
