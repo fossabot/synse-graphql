@@ -9,7 +9,6 @@
 
 import functools
 import graphene
-import logging
 import requests
 import requests.compat
 
@@ -32,7 +31,6 @@ def login():
 
 
 def make_request(url):
-    logging.debug("REQUEST: {0}".format(url))
     result = SESSION.get(requests.compat.urljoin(BASE_URL, url))
     if result.status_code == 401:
         login()
@@ -198,12 +196,21 @@ schema = graphene.Schema(
 
 # Example query
 """
-import importlib
-import pprint
-from graphql_frontend import schema
-import logging
-import sys
+{
+    notifications {
+        _id
+        source {
+            ZoneID
+        }
+    }
 
-logging.basicConfig(stream=sys.stdout, level=getattr(logging, level.upper()))
-pprint.pprint(schema.schema.execute("{ notifications { _id source { ZoneID } } clusters { id hardware_version racks { id   is_leader } } }").data)
+    clusters {
+        id
+        hardware_version
+        racks {
+            id
+            is_leader
+        }
+    }
+}
 """

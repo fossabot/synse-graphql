@@ -26,4 +26,4 @@ clean:
 
 # meant to be run from within the docker container
 one:
-	tox -e py36 -- -i $(test)
+	tox -e py36 -- $(test)
