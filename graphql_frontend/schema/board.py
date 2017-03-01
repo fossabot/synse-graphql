@@ -14,9 +14,9 @@ from .device import Device, SystemDevice, SensorDevice
 
 class Board(graphene.ObjectType):
     _data = None
-    # _type_map = {
-    #     "system": SystemDevice
-    # }
+    _type_map = {
+        "system": SystemDevice
+    }
 
     id = graphene.String(required=True)
     devices = graphene.List(Device, required=True)
@@ -26,4 +26,5 @@ class Board(graphene.ObjectType):
         return Board(id=data.get("board_id"), _data=data)
 
     def resolve_devices(self, args, context, info):
-        return [SensorDevice()]
+        return [self._type_map.get("device_type", SensorDevice).build(d)
+                for d in self._data.get("devices")]

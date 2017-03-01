@@ -11,6 +11,7 @@ import graphene
 
 from .cluster import Cluster
 from .notification import Notification
+from .device import SensorDevice, SystemDevice
 from . import util
 
 
@@ -18,7 +19,10 @@ def create():
     return graphene.Schema(
         query=System,
         auto_camelcase=False,
-        types=[]
+        types=[
+            SensorDevice,
+            SystemDevice
+        ]
     )
 
 

@@ -3,7 +3,21 @@
     racks {
       boards {
         devices {
-          __typename
+          id
+          device_type
+          location {
+            chassis_location {
+              depth
+              vert_pos
+              horiz_pos
+              server_node
+            }
+            physical_location {
+              depth
+              horizontal
+              vertical
+            }
+          }
         }
       }
     }
