@@ -60,22 +60,45 @@ def resolve_assets(cls):
     return cls
 
 
-class Device(graphene.ObjectType):
-    pass
+class Device(graphene.Interface):
+    id = graphene.String(required=True)
+    type = graphene.String(required=True)
+
+
+class SensorDevice(graphene.ObjectType):
+    class Meta:
+        interfaces = (Device, )
+
+    @staticmethod
+    def build(data):
+        return SensorDevice(id=data["device_id"], type=data["device_type"])
+
+
+class SystemDevice(graphene.ObjectType):
+    class Meta:
+        interfaces = (Device, )
+
+    @staticmethod
+    def build(data):
+        return SystemDevice(id=data["device_id"], type=data["device_type"])
 
 
 class Board(graphene.ObjectType):
     _data = None
+    _type_map = {
+        "system": SystemDevice
+    }
 
     id = graphene.String(required=True)
-    # devices = graphene.List(lambda: Device, required=True)
+    devices = graphene.List(lambda: Device, required=True)
 
     @staticmethod
     def build(data):
         return Board(id=data.get("board_id"), _data=data)
 
     def resolve_devices(self, *args, **kwargs):
-        return []
+        return [self._type_map.get(d.get("device_type"), SensorDevice).build(d)
+                for d in self._data.get("devices")]
 
 
 @resolve_assets

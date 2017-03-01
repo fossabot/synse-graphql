@@ -1,0 +1,12 @@
+{
+  clusters {
+    racks {
+      boards {
+        devices {
+          id
+          type
+        }
+      }
+    }
+  }
+}

@@ -17,5 +17,3 @@ services:
       dockerfile: Dockerfile.x64
     ports:
       - "5001:5000"
-
-

@@ -11,6 +11,7 @@ import graphene
 import json
 import os
 import testtools
+import traceback
 
 import graphql_frontend.schema
 
@@ -30,10 +31,11 @@ class BaseSchemaTest(testtools.TestCase):
             return fobj.read()
 
     def output(self, result):
-        print(json.dumps(result.data, indent=4))
+        print(json.dumps(result.data, indent=4)[:500])
 
     def assertQuery(self, result):
         for error in result.errors:
+            print(str(error))
             print(error.message)
         self.assertFalse(result.errors)
         self.output(result)

@@ -70,3 +70,14 @@ class TestSchema(BaseSchemaTest):
         result = self.run_query("test_racks")
         rack = result.data["clusters"][0]["racks"][0]
         self.assertItemsEqual(rack.keys(), keys)
+
+    def test_boards(self):
+        keys = ["id"]
+        result = self.run_query("test_boards")
+        board = result.data["clusters"][0]["racks"][0]["boards"][0]
+        self.assertItemsEqual(board.keys(), keys)
+
+    @attr("now")
+    def test_devices(self):
+        result = self.run_query("test_devices")
+        assert False
