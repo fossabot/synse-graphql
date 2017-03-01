@@ -28,7 +28,7 @@ class BaseSchemaTest(testtools.TestCase):
             return fobj.read()
 
     def output(self, result):
-        print(json.dumps(result.data, indent=4)[:500])
+        print(json.dumps(result.data, indent=4)[:2000])
 
     def assertQuery(self, result):
         for error in result.errors:

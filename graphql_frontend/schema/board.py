@@ -26,5 +26,5 @@ class Board(graphene.ObjectType):
         return Board(id=data.get("board_id"), _data=data)
 
     def resolve_devices(self, args, context, info):
-        return [self._type_map.get("device_type", SensorDevice).build(d)
+        return [self._type_map.get(d.get("device_type"), SensorDevice).build(d)
                 for d in self._data.get("devices")]
