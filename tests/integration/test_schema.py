@@ -7,44 +7,15 @@
      \/apor IO
 """
 
-import graphene
-import json
-import testtools
-
 from nose.plugins.attrib import attr
 
-import graphql_frontend.schema
+from ..util import BaseSchemaTest
 
 
-class TestSchema(testtools.TestCase):
-
-    def setUp(self):
-        super(TestSchema, self).setUp()
-        self.schema = graphene.Schema(
-            query=graphql_frontend.schema.System,
-            auto_camelcase=False)
-
-    def output(self, result):
-        print(json.dumps(result.data, indent=4))
-
-    def assertQuery(self, result):
-        for error in result.errors:
-            print(error.message)
-        self.assertFalse(result.errors)
-        self.output(result)
-
-    def run_query(self, query):
-        result = self.schema.execute(query)
-        self.assertQuery(result)
-        return result
+class TestSchema(BaseSchemaTest):
 
     def test_cluster_basic(self):
-        result = self.run_query("""{
-            clusters {
-                id
-            }
-        }
-        """)
+        result = self.run_query("test_cluster_basic")
         clusters = result.data.get("clusters", [])
         self.assertTrue(clusters)
         self.assertItemsEqual(clusters[0].keys(), ["id"])
@@ -58,16 +29,7 @@ class TestSchema(testtools.TestCase):
             "serial_number",
             "vendor"
         ]
-        result = self.run_query("""{
-            clusters {
-                id
-                hardware_version
-                leader_service_profile
-                model_number
-                serial_number
-                vendor
-            }
-        }""")
+        result = self.run_query("test_cluster_all")
         cluster = result.data.get("clusters", [])[0]
         self.assertItemsEqual(cluster.keys(), keys)
 
@@ -91,31 +53,11 @@ class TestSchema(testtools.TestCase):
             "Reading",
             "ZoneID"
         ]
-        result = self.run_query("""{
-            notifications {
-                _id
-                code
-                resolved_on
-                severity
-                source {
-                    BoardID
-                    DeviceID
-                    DeviceType
-                    Field
-                    RackID
-                    Reading
-                    ZoneID
-                }
-                status
-                text
-                timestamp
-            }
-        }""")
+        result = self.run_query("test_notifications")
         notification = result.data.get("notifications", [])[0]
         self.assertItemsEqual(notification.keys(), keys)
         self.assertItemsEqual(notification.get("source", {}), source_keys)
 
-    @attr("now")
     def test_racks(self):
         keys = [
             "id",
@@ -125,17 +67,6 @@ class TestSchema(testtools.TestCase):
             "failed_servers",
             "server_count"
         ]
-        result = self.run_query("""{
-            clusters {
-                racks {
-                    id
-                    is_leader
-                    is_shadow
-                    vec_ip
-                    failed_servers
-                    server_count
-                }
-            }
-        }""")
+        result = self.run_query("test_racks")
         rack = result.data["clusters"][0]["racks"][0]
         self.assertItemsEqual(rack.keys(), keys)
