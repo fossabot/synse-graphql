@@ -55,8 +55,7 @@ class TestDevice(BaseSchemaTest):
             self.get_devices("test_systemdevice")[0].keys(), keys)
 
     def test_type_arg(self):
-        devices = self.get_devices("test_device_type_arg")
-        assert False
+        self.assertEqual(len(self.get_devices("test_device_type_arg")), 1)
 
     # def test_other(self):
     #     result = self.run_query("test_device_types")
