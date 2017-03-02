@@ -11,7 +11,7 @@ import graphene
 
 from .cluster import Cluster
 from .notification import Notification
-from .device import SensorDevice, SystemDevice
+from .device import SensorDevice, SystemDevice, PressureDevice
 from . import util
 
 
@@ -21,19 +21,34 @@ def create():
         auto_camelcase=False,
         types=[
             SensorDevice,
-            SystemDevice
+            SystemDevice,
+            PressureDevice
         ]
     )
 
 
 class System(graphene.ObjectType):
-    clusters = graphene.List(lambda: Cluster, required=True)
+    clusters = graphene.List(
+        lambda: Cluster,
+        required=True,
+        id=graphene.String()
+    )
     notifications = graphene.List(lambda: Notification, required=True)
 
-    def resolve_clusters(self, args, context, info):
+    @graphene.resolve_only_args
+    def resolve_clusters(self, id=None):
+        def empty_id(x):
+            return True
+
+        def single_id(x):
+            return x.get("cluster_id") == id
+
+        fn = empty_id
+        if id is not None:
+            fn = single_id
         return [Cluster(id=c["cluster_id"], _routing=c)
-                for c in util.make_request(
-                    "routing_table").get("clusters", [])]
+                for c in filter(fn, util.make_request(
+                    "routing_table").get("clusters", []))]
 
     def resolve_notifications(self, *args, **kwargs):
         return [Notification.build(d)

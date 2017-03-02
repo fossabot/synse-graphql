@@ -10,6 +10,8 @@
 import functools
 import graphene
 
+from . import util
+
 
 def setup_resolve(cls):
     for field, field_cls in cls._fields:
@@ -50,7 +52,7 @@ class Location(graphene.ObjectType):
     physical_location = graphene.Field(PhysicalLocation, required=True)
 
 
-class Device(graphene.Interface):
+class DeviceInterface(graphene.Interface):
     _data = None
 
     id = graphene.String(required=True)
@@ -61,11 +63,8 @@ class Device(graphene.Interface):
         return Location(_data=self._data.get("location"))
 
 
-class SensorDevice(graphene.ObjectType):
+class BaseDevice(graphene.ObjectType):
     _data = None
-
-    class Meta:
-        interfaces = (Device, )
 
     @staticmethod
     def build(data):
@@ -74,6 +73,25 @@ class SensorDevice(graphene.ObjectType):
             device_type=data.get("device_type"),
             _data=data
         )
+
+
+class SensorDevice(BaseDevice):
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+
+# thomasr: need to implement all the device types
+# 'pressure', 'vapor_fan', 'temperature', 'power', 'fan_speed',
+# 'vapor_rectifier', 'vapor_led', 'vapor_battery', 'led', 'system'
+class PressureDevice(BaseDevice):
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    pressure_kpa = graphene.String(required=True)
+
+    def resolve_pressure_kpa(self, *args, **kwargs):
+        return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
+            "cluster", "rack", "type", "board_id", "device_id"))
 
 
 class BoardInfo(graphene.ObjectType):
@@ -116,7 +134,7 @@ class SystemDevice(graphene.ObjectType):
     _data = None
 
     class Meta:
-        interfaces = (Device, )
+        interfaces = (DeviceInterface, )
 
     hostnames = graphene.List(graphene.String, required=True)
     ip_addresses = graphene.List(graphene.String, required=True)

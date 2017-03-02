@@ -14,9 +14,11 @@ from ..util import BaseSchemaTest
 
 class TestCluster(BaseSchemaTest):
 
+    def get_clusters(self, query):
+        return self.run_query(query).data.get("clusters")
+
     def test_basic_query(self):
-        result = self.run_query("test_cluster_basic")
-        clusters = result.data.get("clusters", [])
+        clusters = self.get_clusters("test_cluster_basic")
         self.assertTrue(clusters)
         self.assertItemsEqual(clusters[0].keys(), ["id"])
 
@@ -29,6 +31,8 @@ class TestCluster(BaseSchemaTest):
             "serial_number",
             "vendor"
         ]
-        result = self.run_query("test_cluster_all")
-        cluster = result.data.get("clusters", [])[0]
+        cluster = self.get_clusters("test_cluster_all")[0]
         self.assertItemsEqual(cluster.keys(), keys)
+
+    def test_args(self):
+        self.assertEqual(len(self.get_clusters("test_cluster_args")), 1)

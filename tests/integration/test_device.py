@@ -44,7 +44,6 @@ class TestDevice(BaseSchemaTest):
             device.get("location").get("physical_location").keys(),
             physical_keys)
 
-    @attr("now")
     def test_system_device(self):
         keys = [
             "device_type",
@@ -54,3 +53,14 @@ class TestDevice(BaseSchemaTest):
         ]
         device = self.get_device(self.run_query("test_systemdevice"))
         self.assertItemsEqual(device.keys(), keys)
+
+    # def test_other(self):
+    #     result = self.run_query("test_device_types")
+    #     types = set()
+    #     for c in result.data["clusters"]:
+    #         for r in c["racks"]:
+    #             for b in r["boards"]:
+    #                 for d in b["devices"]:
+    #                     types.add(d["device_type"])
+    #     print(types)
+    #     assert False

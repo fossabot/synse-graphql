@@ -1,0 +1,14 @@
+{
+  clusters {
+    racks {
+      boards {
+        devices(device_type:"pressure") {
+          device_type
+          ... on PressureDevice {
+            pressure_kpa
+          }
+        }
+      }
+    }
+  }
+}
