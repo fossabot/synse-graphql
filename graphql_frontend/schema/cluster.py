@@ -46,15 +46,8 @@ class Cluster(graphene.ObjectType):
 
     @graphene.resolve_only_args
     def resolve_racks(self, id=None):
-        def empty_id(x):
-            return True
-
-        def single_id(x):
-            return x.get("rack_id") == id
-
-        fn = empty_id
-        if id is not None:
-            fn = single_id
-
         return [Rack.build(r, self.id)
-                for r in filter(fn, self._routing["racks"])]
+                for r in util.arg_filter(
+                    id,
+                    lambda x: x.get("rack_id") == id,
+                    self._routing["racks"])]

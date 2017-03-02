@@ -14,8 +14,9 @@ from ..util import BaseSchemaTest
 
 class TestBoard(BaseSchemaTest):
 
+    def get_boards(self, query):
+        return self.run_query(query).data["clusters"][0]["racks"][0]["boards"]
+
     def test_query(self):
         keys = ["id"]
-        result = self.run_query("test_boards")
-        board = result.data["clusters"][0]["racks"][0]["boards"][0]
-        self.assertItemsEqual(board.keys(), keys)
+        self.assertItemsEqual(self.get_boards("test_boards")[0].keys(), keys)

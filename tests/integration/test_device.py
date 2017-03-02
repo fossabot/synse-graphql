@@ -14,9 +14,9 @@ from ..util import BaseSchemaTest
 
 class TestDevice(BaseSchemaTest):
 
-    def get_device(self, result):
-        return result.data["clusters"][0]["racks"][0][
-            "boards"][0]["devices"][0]
+    def get_devices(self, query):
+        return self.run_query(query).data["clusters"][0]["racks"][0][
+            "boards"][0]["devices"]
 
     def test_basic_query(self):
         keys = [
@@ -35,7 +35,7 @@ class TestDevice(BaseSchemaTest):
             "horizontal",
             "vertical"
         ]
-        device = self.get_device(self.run_query("test_devices"))
+        device = self.get_devices("test_devices")[0]
         self.assertItemsEqual(device.keys(), keys)
         self.assertItemsEqual(
             device.get("location").get("chassis_location").keys(),
@@ -51,8 +51,12 @@ class TestDevice(BaseSchemaTest):
             "hostnames",
             "asset"
         ]
-        device = self.get_device(self.run_query("test_systemdevice"))
-        self.assertItemsEqual(device.keys(), keys)
+        self.assertItemsEqual(
+            self.get_devices("test_systemdevice")[0].keys(), keys)
+
+    def test_type_arg(self):
+        devices = self.get_devices("test_device_type_arg")
+        assert False
 
     # def test_other(self):
     #     result = self.run_query("test_device_types")

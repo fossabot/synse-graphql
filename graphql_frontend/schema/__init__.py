@@ -41,32 +41,18 @@ class System(graphene.ObjectType):
 
     @graphene.resolve_only_args
     def resolve_clusters(self, id=None):
-        def empty_id(x):
-            return True
-
-        def single_id(x):
-            return x.get("cluster_id") == id
-
-        fn = empty_id
-        if id is not None:
-            fn = single_id
-
         return [Cluster(id=c["cluster_id"], _routing=c)
-                for c in filter(fn, util.make_request(
-                    "routing_table").get("clusters", []))]
+                for c in util.arg_filter(
+                    id,
+                    lambda x: x.get("cluster_id") == id,
+                    util.make_request(
+                        "routing_table").get("clusters", []))]
 
     @graphene.resolve_only_args
     def resolve_notifications(self, _id=None):
-        def empty_id(x):
-            return True
-
-        def single_id(x):
-            return x.get("_id") == _id
-
-        fn = empty_id
-        if _id is not None:
-            fn = single_id
-
         return [Notification.build(d)
-                for d in filter(fn, util.make_request(
-                    "notifications").get("notifications", []))]
+                for d in util.arg_filter(
+                    _id,
+                    lambda x: x.get("_id") == _id,
+                    util.make_request(
+                        "notifications").get("notifications", []))]

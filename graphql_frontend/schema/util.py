@@ -57,3 +57,10 @@ def resolve_assets(cls):
             "resolve_{0}".format(asset),
             functools.partialmethod(get_asset, asset))
     return cls
+
+
+def arg_filter(val, fn, lst):
+    if val is not None:
+        return filter(fn, lst)
+    return lst
+

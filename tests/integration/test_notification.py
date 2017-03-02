@@ -11,7 +11,7 @@ from nose.plugins.attrib import attr
 
 from ..util import BaseSchemaTest
 
-@attr("now")
+
 class TestNotification(BaseSchemaTest):
 
     def get_notifications(self, query):
