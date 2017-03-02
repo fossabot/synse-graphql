@@ -46,6 +46,7 @@ class System(graphene.ObjectType):
         fn = empty_id
         if id is not None:
             fn = single_id
+
         return [Cluster(id=c["cluster_id"], _routing=c)
                 for c in filter(fn, util.make_request(
                     "routing_table").get("clusters", []))]

@@ -11,8 +11,11 @@ from nose.plugins.attrib import attr
 
 from ..util import BaseSchemaTest
 
-
+@attr("now")
 class TestRack(BaseSchemaTest):
+
+    def get_racks(self, query):
+        return self.run_query(query).data.get("clusters")[0]["racks"]
 
     def test_query(self):
         keys = [
@@ -23,6 +26,7 @@ class TestRack(BaseSchemaTest):
             "failed_servers",
             "server_count"
         ]
-        result = self.run_query("test_racks")
-        rack = result.data["clusters"][0]["racks"][0]
-        self.assertItemsEqual(rack.keys(), keys)
+        self.assertItemsEqual(self.get_racks("test_racks")[0].keys(), keys)
+
+    def test_id_arg(self):
+        self.assertEqual(len(self.get_racks("test_rack_id")), 1)

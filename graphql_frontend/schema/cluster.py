@@ -27,7 +27,11 @@ class Cluster(graphene.ObjectType):
 
     # Schema
     id = graphene.String(required=True)
-    racks = graphene.List(lambda: Rack, required=True)
+    racks = graphene.List(
+        lambda: Rack,
+        required=True,
+        id=graphene.String()
+    )
 
     hardware_version = graphene.String(required=True)
     leader_service_profile = graphene.String(required=True)
@@ -40,5 +44,17 @@ class Cluster(graphene.ObjectType):
         return util.make_request(
             "asset/{0}".format(self.id)).get("cluster_info", {})
 
-    def resolve_racks(self, args, context, info):
-        return [Rack.build(r, self.id) for r in self._routing["racks"]]
+    @graphene.resolve_only_args
+    def resolve_racks(self, id=None):
+        def empty_id(x):
+            return True
+
+        def single_id(x):
+            return x.get("rack_id") == id
+
+        fn = empty_id
+        if id is not None:
+            fn = single_id
+
+        return [Rack.build(r, self.id)
+                for r in filter(fn, self._routing["racks"])]
