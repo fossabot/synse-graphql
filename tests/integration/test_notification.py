@@ -11,8 +11,11 @@ from nose.plugins.attrib import attr
 
 from ..util import BaseSchemaTest
 
-
+@attr("now")
 class TestNotification(BaseSchemaTest):
+
+    def get_notifications(self, query):
+        return self.run_query(query).data.get("notifications")
 
     def test_query(self):
         keys = [
@@ -34,7 +37,10 @@ class TestNotification(BaseSchemaTest):
             "Reading",
             "ZoneID"
         ]
-        result = self.run_query("test_notifications")
-        notification = result.data.get("notifications", [])[0]
+        notification = self.get_notifications("test_notifications")[0]
         self.assertItemsEqual(notification.keys(), keys)
         self.assertItemsEqual(notification.get("source", {}), source_keys)
+
+    def test_id_arg(self):
+        self.assertEqual(
+            len(self.get_notifications("test_notification_id")), 1)

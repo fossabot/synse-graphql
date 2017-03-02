@@ -33,7 +33,11 @@ class System(graphene.ObjectType):
         required=True,
         id=graphene.String()
     )
-    notifications = graphene.List(lambda: Notification, required=True)
+    notifications = graphene.List(
+        lambda: Notification,
+        required=True,
+        _id=graphene.String()
+    )
 
     @graphene.resolve_only_args
     def resolve_clusters(self, id=None):
@@ -51,7 +55,18 @@ class System(graphene.ObjectType):
                 for c in filter(fn, util.make_request(
                     "routing_table").get("clusters", []))]
 
-    def resolve_notifications(self, *args, **kwargs):
+    @graphene.resolve_only_args
+    def resolve_notifications(self, _id=None):
+        def empty_id(x):
+            return True
+
+        def single_id(x):
+            return x.get("_id") == _id
+
+        fn = empty_id
+        if _id is not None:
+            fn = single_id
+
         return [Notification.build(d)
-                for d in util.make_request(
-                    "notifications").get("notifications", [])]
+                for d in filter(fn, util.make_request(
+                    "notifications").get("notifications", []))]
