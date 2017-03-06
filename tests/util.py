@@ -14,6 +14,8 @@ import testtools
 
 import graphql_frontend.schema
 
+QUERY_PREVIEW_LENGTH = 1000
+
 
 class BaseSchemaTest(testtools.TestCase):
 
@@ -28,7 +30,7 @@ class BaseSchemaTest(testtools.TestCase):
             return fobj.read()
 
     def output(self, result):
-        print(json.dumps(result.data, indent=4)[:2000])
+        print(json.dumps(result.data, indent=4)[:QUERY_PREVIEW_LENGTH])
 
     def assertQuery(self, result):
         for error in result.errors:

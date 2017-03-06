@@ -65,14 +65,28 @@ class DeviceInterface(graphene.Interface):
 
 class BaseDevice(graphene.ObjectType):
     _data = None
+    _parent = None
 
-    @staticmethod
-    def build(data):
-        return SensorDevice(
+    @classmethod
+    def build(cls, parent, data):
+        return globals().get(cls.__name__)(
             id=data.get("device_id"),
             device_type=data.get("device_type"),
+            _parent=parent,
             _data=data
         )
+
+    @property
+    def cluster_id(self):
+        return self._parent._parent._parent.id
+
+    @property
+    def rack_id(self):
+        return self._parent._parent.id
+
+    @property
+    def board_id(self):
+        return self._parent.id
 
 
 class SensorDevice(BaseDevice):
@@ -91,7 +105,11 @@ class PressureDevice(BaseDevice):
 
     def resolve_pressure_kpa(self, *args, **kwargs):
         return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
-            "cluster", "rack", "type", "board_id", "device_id"))
+            self.cluster_id,
+            self.rack_id,
+            self.device_type,
+            self.board_id,
+            self.id)).get("pressure_kpa")
 
 
 class BoardInfo(graphene.ObjectType):

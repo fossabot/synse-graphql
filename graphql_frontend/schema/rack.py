@@ -20,9 +20,9 @@ class Rack(graphene.ObjectType):
         "failed_servers",
         "server_count"
     ]
+    _parent = None
 
     id = graphene.String(required=True)
-    cluster_id = graphene.String(required=True)
 
     # routing table
     is_leader = graphene.Boolean(required=True)
@@ -33,24 +33,34 @@ class Rack(graphene.ObjectType):
     failed_servers = graphene.String(required=True)
     server_count = graphene.String(required=True)
 
-    boards = graphene.List(lambda: Board, required=True)
+    boards = graphene.List(
+        lambda: Board,
+        required=True,
+        id=graphene.String())
 
     @functools.lru_cache(maxsize=1)
     def _request_assets(self):
         return util.make_request(
-            "asset/{0}/{1}".format(self.cluster_id, self.id))
+            "asset/{0}/{1}".format(self._parent.id, self.id))
 
     def get_asset(self, asset, *args, **kwargs):
         return self._request_assets().get(asset, "")
 
+    def get_boards(self):
+        return util.make_request(
+            "inventory/{0}/{1}".format(self._parent.id, self.id)
+            ).get("clusters", [])[0].get("racks")[0].get("boards")
+
     @staticmethod
-    def build(info, cluster_id):
+    def build(parent, info):
         _id = info["rack_id"]
         info.pop("rack_id")
-        return Rack(id=_id, cluster_id=cluster_id, **info)
+        return Rack(id=_id, _parent=parent, **info)
 
-    def resolve_boards(self, *args, **kwargs):
-        return [Board.build(b)
-                for b in util.make_request(
-                    "inventory/{0}/{1}".format(self.cluster_id, self.id)
-                    ).get("clusters", [])[0].get("racks")[0].get("boards")]
+    @graphene.resolve_only_args
+    def resolve_boards(self, id=None):
+        return [Board.build(self, b)
+                for b in util.arg_filter(
+                    id,
+                    lambda x: x.get("board_id") == id,
+                    self.get_boards())]

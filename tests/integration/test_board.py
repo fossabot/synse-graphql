@@ -20,3 +20,6 @@ class TestBoard(BaseSchemaTest):
     def test_query(self):
         keys = ["id"]
         self.assertItemsEqual(self.get_boards("test_boards")[0].keys(), keys)
+
+    def test_id_arg(self):
+        self.assertEqual(len(self.get_boards("test_board_id")), 1)

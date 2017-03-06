@@ -34,6 +34,7 @@ def make_request(url):
     if result.status_code == 401:
         login()
         return make_request(url)
+    result.raise_for_status()
     return result.json()
 
 
