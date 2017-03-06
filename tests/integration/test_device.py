@@ -57,10 +57,16 @@ class TestDevice(BaseSchemaTest):
     def test_type_arg(self):
         self.assertEqual(len(self.get_devices("test_device_type_arg")), 1)
 
-    @attr("now")
     def test_pressure(self):
         keys = [
             "pressure_kpa"
         ]
         self.assertItemsEqual(
-            self.get_devices("test_pressure_device")[0], keys)
+            self.get_devices("test_pressure_device")[0].keys(), keys)
+
+    def test_temperature(self):
+        keys = [
+            "temperature_c"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_temp_device")[0].keys(), keys)

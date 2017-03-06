@@ -9,21 +9,17 @@
 
 import graphene
 
-from .device import DeviceInterface, SystemDevice, SensorDevice, PressureDevice
+from . import device
 from . import util
 
 
 class Board(graphene.ObjectType):
     _data = None
     _parent = None
-    _type_map = {
-        "system": SystemDevice,
-        "pressure": PressureDevice
-    }
 
     id = graphene.String(required=True)
     devices = graphene.List(
-        DeviceInterface,
+        device.DeviceInterface,
         required=True,
         device_type=graphene.String()
     )
@@ -32,10 +28,15 @@ class Board(graphene.ObjectType):
     def build(parent, data):
         return Board(id=data.get("board_id"), _data=data, _parent=parent)
 
+    def device_class(self, device_type):
+        return getattr(
+            device,
+            "{0}Device".format(device_type.title()),
+            device.SensorDevice)
+
     @graphene.resolve_only_args
     def resolve_devices(self, device_type=None):
-        return [self._type_map.get(d.get("device_type"), SensorDevice).build(
-                    self, d)
+        return [self.device_class(d.get("device_type")).build(self, d)
                 for d in util.arg_filter(
                     device_type,
                     lambda x: x.get("device_type") == device_type,

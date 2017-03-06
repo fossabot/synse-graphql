@@ -11,19 +11,19 @@ import graphene
 
 from .cluster import Cluster
 from .notification import Notification
-from .device import SensorDevice, SystemDevice, PressureDevice
+from . import device
 from . import util
+
+
+def get_device_types():
+    return [getattr(device, x) for x in dir(device) if x.endswith('Device')]
 
 
 def create():
     return graphene.Schema(
         query=System,
         auto_camelcase=False,
-        types=[
-            SensorDevice,
-            SystemDevice,
-            PressureDevice
-        ]
+        types=get_device_types()
     )
 
 

@@ -63,7 +63,7 @@ class DeviceInterface(graphene.Interface):
         return Location(_data=self._data.get("location"))
 
 
-class BaseDevice(graphene.ObjectType):
+class DeviceBase(graphene.ObjectType):
     _data = None
     _parent = None
 
@@ -88,8 +88,16 @@ class BaseDevice(graphene.ObjectType):
     def board_id(self):
         return self._parent.id
 
+    def _resolve_detail(self, key):
+        return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
+            self.cluster_id,
+            self.rack_id,
+            self.device_type,
+            self.board_id,
+            self.id)).get(key)
 
-class SensorDevice(BaseDevice):
+
+class SensorDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
@@ -97,19 +105,24 @@ class SensorDevice(BaseDevice):
 # thomasr: need to implement all the device types
 # 'pressure', 'vapor_fan', 'temperature', 'power', 'fan_speed',
 # 'vapor_rectifier', 'vapor_led', 'vapor_battery', 'led', 'system'
-class PressureDevice(BaseDevice):
+class PressureDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
     pressure_kpa = graphene.String(required=True)
 
     def resolve_pressure_kpa(self, *args, **kwargs):
-        return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
-            self.cluster_id,
-            self.rack_id,
-            self.device_type,
-            self.board_id,
-            self.id)).get("pressure_kpa")
+        return self._resolve_detail("pressure_kpa")
+
+
+class TemperatureDevice(DeviceBase):
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    temperature_c = graphene.String(required=True)
+
+    def resolve_temperature_c(self, *args, **kwargs):
+        return self._resolve_detail("temperature_c")
 
 
 class BoardInfo(graphene.ObjectType):
@@ -148,23 +161,13 @@ class Asset(graphene.ObjectType):
     product_info = graphene.Field(ProductInfo, required=True)
 
 
-class SystemDevice(graphene.ObjectType):
-    _data = None
-
+class SystemDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
     hostnames = graphene.List(graphene.String, required=True)
     ip_addresses = graphene.List(graphene.String, required=True)
     asset = graphene.Field(Asset, required=True)
-
-    @staticmethod
-    def build(data):
-        return SystemDevice(
-            id=data.get("device_id"),
-            device_type=data.get("device_type"),
-            _data=data
-        )
 
     def resolve_hostnames(self, *args, **kwargs):
         return self._data.get("hostnames")
