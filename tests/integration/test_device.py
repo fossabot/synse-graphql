@@ -131,21 +131,3 @@ class TestDevice(BaseSchemaTest):
         ]
         self.assertItemsEqual(
             self.get_devices("test_vapor_fan_device")[0].keys(), keys)
-
-    #@attr("now")
-    # def test_other(self):
-    #     result = self.run_query("test_device_types")
-    #     types = set()
-    #     for c in result.data["clusters"]:
-    #         for r in c["racks"]:
-    #             for b in r["boards"]:
-    #                 for d in b["devices"]:
-    #                     types.add(d["device_type"])
-    #                     print("{0}\t{1}\t{2}\t{3}".format(
-    #                         d["device_type"],
-    #                         b["id"],
-    #                         r["id"],
-    #                         c["id"]
-    #                         ))
-    #     print(types)
-    #     assert False

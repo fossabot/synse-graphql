@@ -27,7 +27,6 @@ class TestRack(BaseSchemaTest):
             "server_count"
         ]
         self.assertItemsEqual(self.get_racks("test_racks")[0].keys(), keys)
-        assert False
 
     def test_id_arg(self):
         self.assertEqual(len(self.get_racks("test_rack_id")), 1)

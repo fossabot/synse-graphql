@@ -110,14 +110,12 @@ class DeviceBase(graphene.ObjectType):
         return self._resolve_detail().get(field)
 
 
+# thomasr: since VaporBatteryDevice is a noop right now, it just uses this.
 class SensorDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
 
-# thomasr: need to implement all the device types
-# 'vapor_fan',
-# 'vapor_battery'
 @resolve_fields
 class PressureDevice(DeviceBase):
     _resolve_fields = [
