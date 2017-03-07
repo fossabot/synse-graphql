@@ -70,3 +70,17 @@ class TestDevice(BaseSchemaTest):
         ]
         self.assertItemsEqual(
             self.get_devices("test_temp_device")[0].keys(), keys)
+
+    def test_power(self):
+        keys = [
+            "input_power",
+            "input_voltage",
+            "output_current",
+            "over_current",
+            "pmbus_raw",
+            "power_ok",
+            "power_status",
+            "under_voltage"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_power_device")[0].keys(), keys)

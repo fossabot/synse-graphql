@@ -8,6 +8,7 @@
 """
 
 import graphene
+import inflection
 
 from . import device
 from . import util
@@ -31,7 +32,7 @@ class Board(graphene.ObjectType):
     def device_class(self, device_type):
         return getattr(
             device,
-            "{0}Device".format(device_type.title()),
+            "{0}Device".format(inflection.camelize(device_type)),
             device.SensorDevice)
 
     @graphene.resolve_only_args

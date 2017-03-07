@@ -88,6 +88,7 @@ class DeviceBase(graphene.ObjectType):
     def board_id(self):
         return self._parent.id
 
+    @functools.lru_cache(maxsize=1)
     def _resolve_detail(self, key):
         return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
             self.cluster_id,
@@ -123,6 +124,52 @@ class TemperatureDevice(DeviceBase):
 
     def resolve_temperature_c(self, *args, **kwargs):
         return self._resolve_detail("temperature_c")
+
+
+def power_resolve(cls):
+    for field in cls._resolve_fields:
+        setattr(
+            cls,
+            "resolve_{0}".format(field),
+            functools.partialmethod(cls._request_data, field))
+    return cls
+
+
+@power_resolve
+class VaporRectifierDevice(DeviceBase):
+    _resolve_fields = [
+        "input_power",
+        "input_voltage",
+        "output_current",
+        "over_current",
+        "pmbus_raw",
+        "power_ok",
+        "power_status",
+        "under_voltage"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    input_power = graphene.Float(required=True)
+    input_voltage = graphene.Float(required=True)
+    output_current = graphene.Float(required=True)
+    over_current = graphene.Boolean(required=True)
+    pmbus_raw = graphene.String(required=True)
+    power_ok = graphene.Boolean(required=True)
+    power_status = graphene.String(required=True)
+    under_voltage = graphene.Boolean(required=True)
+
+    def _request_data(self, field, args, context, info):
+        return self._resolve_detail().get(field)
+
+    @functools.lru_cache(maxsize=1)
+    def _resolve_detail(self):
+        return util.make_request("power/{0}/{1}/{2}/{3}".format(
+            self.cluster_id,
+            self.rack_id,
+            self.board_id,
+            self.id))
 
 
 class BoardInfo(graphene.ObjectType):

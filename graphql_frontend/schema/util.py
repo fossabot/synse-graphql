@@ -64,4 +64,3 @@ def arg_filter(val, fn, lst):
     if val is not None:
         return filter(fn, lst)
     return lst
-
