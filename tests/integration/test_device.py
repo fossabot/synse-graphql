@@ -57,6 +57,7 @@ class TestDevice(BaseSchemaTest):
     def test_type_arg(self):
         self.assertEqual(len(self.get_devices("test_device_type_arg")), 1)
 
+
     def test_pressure(self):
         keys = [
             "pressure_kpa"
@@ -71,6 +72,20 @@ class TestDevice(BaseSchemaTest):
         self.assertItemsEqual(
             self.get_devices("test_temp_device")[0].keys(), keys)
 
+    def test_vapor_rectifier(self):
+        keys = [
+            "input_power",
+            "input_voltage",
+            "output_current",
+            "over_current",
+            "pmbus_raw",
+            "power_ok",
+            "power_status",
+            "under_voltage"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_vapor_rectifier_device")[0].keys(), keys)
+
     def test_power(self):
         keys = [
             "input_power",
@@ -84,3 +99,53 @@ class TestDevice(BaseSchemaTest):
         ]
         self.assertItemsEqual(
             self.get_devices("test_power_device")[0].keys(), keys)
+
+    def test_vapor_led(self):
+        keys = [
+            "blink_state",
+            "led_color",
+            "led_state"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_vapor_led_device")[0].keys(), keys)
+
+    def test_led(self):
+        keys = [
+            "led_state"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_led_device")[0].keys(), keys)
+
+    def test_fan_speed(self):
+        keys = [
+            "fan_mode",
+            "speed_rpm"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_fan_speed_device")[0].keys(), keys)
+
+    def test_vapor_fan(self):
+        keys = [
+            "fan_mode",
+            "speed_rpm"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_vapor_fan_device")[0].keys(), keys)
+
+    #@attr("now")
+    # def test_other(self):
+    #     result = self.run_query("test_device_types")
+    #     types = set()
+    #     for c in result.data["clusters"]:
+    #         for r in c["racks"]:
+    #             for b in r["boards"]:
+    #                 for d in b["devices"]:
+    #                     types.add(d["device_type"])
+    #                     print("{0}\t{1}\t{2}\t{3}".format(
+    #                         d["device_type"],
+    #                         b["id"],
+    #                         r["id"],
+    #                         c["id"]
+    #                         ))
+    #     print(types)
+    #     assert False

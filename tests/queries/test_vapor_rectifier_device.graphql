@@ -1,9 +1,9 @@
 {
   clusters(id:"zone_1") {
     racks(id:"rack_1") {
-      boards(id:"00000001") {
-        devices(device_type:"power") {
-          ... on PowerDevice {
+      boards(id:"00000400") {
+        devices(device_type:"vapor_rectifier") {
+          ... on VaporRectifierDevice {
             input_power
             input_voltage
             output_current

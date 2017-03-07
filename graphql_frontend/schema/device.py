@@ -13,6 +13,15 @@ import graphene
 from . import util
 
 
+def resolve_fields(cls):
+    for field in cls._resolve_fields:
+        setattr(
+            cls,
+            "resolve_{0}".format(field),
+            functools.partialmethod(cls._request_data, field))
+    return cls
+
+
 def setup_resolve(cls):
     for field, field_cls in cls._fields:
         setattr(
@@ -89,13 +98,16 @@ class DeviceBase(graphene.ObjectType):
         return self._parent.id
 
     @functools.lru_cache(maxsize=1)
-    def _resolve_detail(self, key):
+    def _resolve_detail(self):
         return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
             self.cluster_id,
             self.rack_id,
             self.device_type,
             self.board_id,
-            self.id)).get(key)
+            self.id))
+
+    def _request_data(self, field, args, context, info):
+        return self._resolve_detail().get(field)
 
 
 class SensorDevice(DeviceBase):
@@ -104,39 +116,71 @@ class SensorDevice(DeviceBase):
 
 
 # thomasr: need to implement all the device types
-# 'pressure', 'vapor_fan', 'temperature', 'power', 'fan_speed',
-# 'vapor_rectifier', 'vapor_led', 'vapor_battery', 'led', 'system'
+# 'vapor_fan',
+# 'vapor_battery'
+@resolve_fields
 class PressureDevice(DeviceBase):
+    _resolve_fields = [
+        "pressure_kpa"
+    ]
+
     class Meta:
         interfaces = (DeviceInterface, )
 
     pressure_kpa = graphene.String(required=True)
 
-    def resolve_pressure_kpa(self, *args, **kwargs):
-        return self._resolve_detail("pressure_kpa")
 
-
+@resolve_fields
 class TemperatureDevice(DeviceBase):
+    _resolve_fields = [
+        "temperature_c"
+    ]
+
     class Meta:
         interfaces = (DeviceInterface, )
 
     temperature_c = graphene.String(required=True)
 
-    def resolve_temperature_c(self, *args, **kwargs):
-        return self._resolve_detail("temperature_c")
+
+@resolve_fields
+class FanSpeedDevice(DeviceBase):
+    _resolve_fields = [
+        "fan_mode",
+        "speed_rpm"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    fan_mode = graphene.String(required=True)
+    speed_rpm = graphene.Int(required=True)
 
 
-def power_resolve(cls):
-    for field in cls._resolve_fields:
-        setattr(
-            cls,
-            "resolve_{0}".format(field),
-            functools.partialmethod(cls._request_data, field))
-    return cls
+# thomasr: another very slight difference between vapor and non vapor device.
+@resolve_fields
+class VaporFanDevice(DeviceBase):
+    _resolve_fields = [
+        "fan_mode",
+        "speed_rpm"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    fan_mode = graphene.String(required=True)
+    speed_rpm = graphene.Int(required=True)
+
+    @functools.lru_cache(maxsize=1)
+    def _resolve_detail(self):
+        return util.make_request("fan/{0}/{1}/{2}/{3}".format(
+            self.cluster_id,
+            self.rack_id,
+            self.board_id,
+            self.id))
 
 
-@power_resolve
-class VaporRectifierDevice(DeviceBase):
+@resolve_fields
+class PowerDevice(DeviceBase):
     _resolve_fields = [
         "input_power",
         "input_voltage",
@@ -160,16 +204,88 @@ class VaporRectifierDevice(DeviceBase):
     power_status = graphene.String(required=True)
     under_voltage = graphene.Boolean(required=True)
 
-    def _request_data(self, field, args, context, info):
-        return self._resolve_detail().get(field)
-
     @functools.lru_cache(maxsize=1)
     def _resolve_detail(self):
-        return util.make_request("power/{0}/{1}/{2}/{3}".format(
+        return util.make_request("power/{0}/{1}/{2}/{3}/status".format(
             self.cluster_id,
             self.rack_id,
             self.board_id,
             self.id))
+
+
+# thomasr: this is a huge cut and paste because of something weird going on
+# with inheritance and graphene. Should be fixed!
+@resolve_fields
+class VaporRectifierDevice(PowerDevice):
+    _resolve_fields = [
+        "input_power",
+        "input_voltage",
+        "output_current",
+        "over_current",
+        "pmbus_raw",
+        "power_ok",
+        "power_status",
+        "under_voltage"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    input_power = graphene.Float(required=True)
+    input_voltage = graphene.Float(required=True)
+    output_current = graphene.Float(required=True)
+    over_current = graphene.Boolean(required=True)
+    pmbus_raw = graphene.String(required=True)
+    power_ok = graphene.Boolean(required=True)
+    power_status = graphene.String(required=True)
+    under_voltage = graphene.Boolean(required=True)
+
+
+@resolve_fields
+class VaporLedDevice(DeviceBase):
+    _resolve_fields = [
+        "blink_state",
+        "led_color",
+        "led_state"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    blink_state = graphene.String(required=True)
+    led_color = graphene.String(required=True)
+    led_state = graphene.String(required=True)
+
+    @functools.lru_cache(maxsize=1)
+    def _resolve_detail(self):
+        return util.make_request(
+            "led/{0}/{1}/{2}/{3}/no_override/no_override/no_override".format(
+                self.cluster_id,
+                self.rack_id,
+                self.board_id,
+                self.id))
+
+
+# thomasr: LEDs are subtly different than vapor_leds =(
+@resolve_fields
+class LedDevice(DeviceBase):
+    _resolve_fields = [
+        "led_state"
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    led_state = graphene.String(required=True)
+
+    @functools.lru_cache(maxsize=1)
+    def _resolve_detail(self):
+        return util.make_request(
+            "led/{0}/{1}/{2}/{3}".format(
+                self.cluster_id,
+                self.rack_id,
+                self.board_id,
+                self.id))
 
 
 class BoardInfo(graphene.ObjectType):
