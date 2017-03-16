@@ -10,6 +10,7 @@
 import json
 import logging
 import os
+
 import testtools
 
 import graphql_frontend.schema

@@ -8,6 +8,7 @@
 """
 
 import functools
+
 import requests
 import requests.compat
 

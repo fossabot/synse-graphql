@@ -7,7 +7,7 @@
      \/apor IO
 """
 
-from nose.plugins.attrib import attr
+from nose.plugins.attrib import attr  # noqa
 
 from ..util import BaseSchemaTest
 

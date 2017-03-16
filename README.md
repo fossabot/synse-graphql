@@ -13,6 +13,11 @@
 1. `make dev`
 2. `make one test=
 
+### Getting isort errors?
+
+- See the changes: `isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --diff`
+- Atomic updates: `isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --atomic`
+
 ## Testing
 
 - `make test`

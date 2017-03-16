@@ -8,6 +8,7 @@
 """
 
 import functools
+
 import graphene
 
 from . import util

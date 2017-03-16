@@ -8,10 +8,11 @@
 """
 
 import functools
+
 import graphene
 
-from .rack import Rack
 from . import util
+from .rack import Rack
 
 
 @util.resolve_assets

@@ -10,8 +10,7 @@
 import graphene
 import inflection
 
-from . import device
-from . import util
+from . import device, util
 
 
 class Board(graphene.ObjectType):

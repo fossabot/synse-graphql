@@ -9,10 +9,9 @@
 
 import graphene
 
+from . import device, util
 from .cluster import Cluster
 from .notification import Notification
-from . import device
-from . import util
 
 
 def get_device_types():

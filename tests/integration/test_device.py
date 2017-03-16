@@ -7,7 +7,7 @@
      \/apor IO
 """
 
-from nose.plugins.attrib import attr
+from nose.plugins.attrib import attr  # noqa
 
 from ..util import BaseSchemaTest
 
@@ -56,7 +56,6 @@ class TestDevice(BaseSchemaTest):
 
     def test_type_arg(self):
         self.assertEqual(len(self.get_devices("test_device_type_arg")), 1)
-
 
     def test_pressure(self):
         keys = [
