@@ -1,4 +1,4 @@
-router_server: 172.17.0.1:4998
+router_server: localhost:4998
 username: admin
 password: Vapor
 port: 5001
