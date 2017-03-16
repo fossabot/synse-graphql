@@ -25,7 +25,7 @@ clean:
 	docker-compose -f docker-compose.yml down
 
 run:
-	docker-compose -f docker-compose.yml run --service-ports --rm graphql_frontend
+	docker-compose -f docker-compose.yml run -e ROUTER_SERVER=$(router) --service-ports --rm graphql_frontend
 
 # meant to be run from within the docker container
 one:

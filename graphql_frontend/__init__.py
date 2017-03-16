@@ -11,6 +11,7 @@ import logging
 
 from flask import Flask
 from flask_graphql import GraphQLView
+from graphql.execution.executors.gevent import GeventExecutor
 
 import graphql_frontend.config
 import graphql_frontend.schema
@@ -27,6 +28,7 @@ app.add_url_rule(
     view_func=GraphQLView.as_view(
         'graphql',
         schema=local_schema,
+        executor=GeventExecutor(),
         graphiql=True))
 
 
