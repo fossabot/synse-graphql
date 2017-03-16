@@ -2,6 +2,8 @@
 
 ## Kick the tires
 
+Note: the default configuration assumes that `aws_core` is running locally. Pass `--router_server=127.0.0.1:4498` to `runserver.py` if it is in a different location.
+
 ### From the web
 
     make build run
@@ -27,13 +29,20 @@ At this point there is an interactive terminal running that you can do interacti
 
 ### Run the tests (as part of development)
 
-1. `make dev`
-1. `make one test="-a now"`. See [nosetests](http://nose.readthedocs.io/en/latest/usage.html) for some more examples. Adding `@attr('now')` to the top of a function is a really convenient way to just run a single test.
+    make build dev
+    make one test="-a now"`
+
+See [nosetests](http://nose.readthedocs.io/en/latest/usage.html) for some more examples. Adding `@attr('now')` to the top of a function is a really convenient way to just run a single test.
 
 ### Getting isort errors?
 
-- See the changes: `isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --diff`
-- Atomic updates: `isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --atomic`
+- See the changes:
+
+    isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --diff
+
+- Atomic updates:
+
+    isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --atomic
 
 ## Testing (run the whole suite)
 
