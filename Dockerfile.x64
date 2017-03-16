@@ -11,4 +11,4 @@ RUN apk add --update alpine-sdk && \
 COPY . /graphql_frontend
 
 WORKDIR /graphql_frontend
-CMD /bin/sh
+CMD python runserver.py

@@ -12,28 +12,27 @@ import functools
 import requests
 import requests.compat
 
-BASE_URL = "http://172.17.0.1:4998/vaporcore/1.0/routing/"
+from graphql_frontend import config
+
 SESSION = requests.Session()
 
-# AUTH
-AUTH_USERNAME = "admin"
-AUTH_PASSWORD = "Vapor"
 
-
-def login():
+def login(base):
     # thomasr: need some logging here for success/failure
-    SESSION.post(requests.compat.urljoin(BASE_URL, "login"), data={
-        "username": AUTH_USERNAME,
-        "password": AUTH_PASSWORD,
+    SESSION.post(requests.compat.urljoin(base, "login"), data={
+        "username": config.options.get('username'),
+        "password": config.options.get('password'),
         "target": "",
         "redirect_target": ""
     }, allow_redirects=False)
 
 
 def make_request(url):
-    result = SESSION.get(requests.compat.urljoin(BASE_URL, url))
+    base = "http://{0}/vaporcore/1.0/routing/".format(
+        config.options.get('router_server'))
+    result = SESSION.get(requests.compat.urljoin(base, url))
     if result.status_code == 401:
-        login()
+        login(base)
         return make_request(url)
     result.raise_for_status()
     return result.json()

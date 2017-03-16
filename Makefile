@@ -15,14 +15,17 @@ build:
 # get date for tagging on push
 date := $(shell /bin/date "+%m%d%y-%H%M")
 
-dev: build
-	docker-compose -f docker-compose.yml run --service-ports --rm test /bin/sh
+dev:
+	docker-compose -f docker-compose.yml run --rm test /bin/sh
 
 test:
 	docker-compose -f docker-compose.yml run --rm test tox
 
 clean:
 	docker-compose -f docker-compose.yml down
+
+run:
+	docker-compose -f docker-compose.yml run --service-ports --rm graphql_frontend
 
 # meant to be run from within the docker container
 one:

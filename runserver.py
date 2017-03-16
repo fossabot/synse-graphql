@@ -9,6 +9,10 @@
 """
 from gevent import monkey; monkey.patch_socket() # noqa
 
+from graphql_frontend import config
 from graphql_frontend import main
 
-main()
+
+if __name__ == '__main__':
+    config.parse_args()
+    main()

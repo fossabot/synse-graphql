@@ -13,6 +13,7 @@ import os
 
 import testtools
 
+import graphql_frontend.config
 import graphql_frontend.schema
 
 QUERY_PREVIEW_LENGTH = 1000
@@ -22,6 +23,8 @@ class BaseSchemaTest(testtools.TestCase):
 
     def setUp(self):
         super(BaseSchemaTest, self).setUp()
+        if graphql_frontend.config.options is None:
+            graphql_frontend.config.parse_args([])
         self.schema = graphql_frontend.schema.create()
 
     def get_query(self, name):
