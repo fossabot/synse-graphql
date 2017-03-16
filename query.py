@@ -117,9 +117,7 @@ def main(options):
         print('\nResult')
         print('-------')
 
-    result = resp.json()
-
-    print(json.dumps(result.get('data'), indent=4))
+    print(json.dumps(resp.json(), indent=4))
 
 
 if __name__ == '__main__':
