@@ -7,17 +7,13 @@
     \\//
      \/apor IO
 """
-import logging
-
 from flask import Flask
 from flask_graphql import GraphQLView
-from graphql.execution.executors.gevent import GeventExecutor
 
 import graphql_frontend.config
 import graphql_frontend.schema
 from vapor_common.vapor_logging import setup_logging
 
-logger = logging.getLogger(__name__)
 setup_logging(default_path='logging.json')
 
 app = Flask(__name__)
@@ -28,7 +24,6 @@ app.add_url_rule(
     view_func=GraphQLView.as_view(
         'graphql',
         schema=local_schema,
-        executor=GeventExecutor(),
         graphiql=True))
 
 
