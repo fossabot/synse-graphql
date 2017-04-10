@@ -11,6 +11,7 @@ from flask import Flask
 from flask_graphql import GraphQLView
 
 import graphql_frontend.config
+import graphql_frontend.prometheus
 import graphql_frontend.schema
 from vapor_common.vapor_logging import setup_logging
 
@@ -25,6 +26,11 @@ app.add_url_rule(
         'graphql',
         schema=local_schema,
         graphiql=True))
+
+app.add_url_rule(
+    '/metrics',
+    view_func=graphql_frontend.prometheus.get
+    )
 
 
 def main():
