@@ -24,7 +24,12 @@ class BaseSchemaTest(testtools.TestCase):
     def setUp(self):
         super(BaseSchemaTest, self).setUp()
         if graphql_frontend.config.options is None:
-            graphql_frontend.config.parse_args([])
+            graphql_frontend.config.parse_args([
+                '--mode',
+                'core',
+                '--backend',
+                'localhost:4998'
+            ])
         self.schema = graphql_frontend.schema.create()
 
     def get_query(self, name):

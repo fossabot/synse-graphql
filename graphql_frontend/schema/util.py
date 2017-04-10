@@ -27,15 +27,30 @@ def login(base):
     }, allow_redirects=False)
 
 
-def make_request(url):
+def make_request_core(url):
     base = "http://{0}/vaporcore/1.0/routing/".format(
-        config.options.get('router_server'))
+        config.options.get('backend'))
     result = SESSION.get(requests.compat.urljoin(base, url))
     if result.status_code == 401:
         login(base)
         return make_request(url)
     result.raise_for_status()
     return result.json()
+
+
+def make_request_opendcre(url):
+    base = "http://{0}/opendcre/1.3/".format(
+        config.options.get('backend'))
+    result = SESSION.get(requests.compat.urljoin(base, url))
+    result.raise_for_status()
+    return result.json()
+
+
+def make_request(url):
+    if config.options.get('mode') == 'core':
+        return make_request_core(url)
+
+    return make_request_opendcre(url)
 
 
 def get_asset(self, asset, *args, **kwargs):

@@ -7,7 +7,6 @@
     \\//
      \/apor IO
 """
-from gevent import monkey; monkey.patch_socket() # noqa
 
 from graphql_frontend import config
 from graphql_frontend import main

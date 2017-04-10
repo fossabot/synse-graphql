@@ -2,13 +2,11 @@
 
 ## Kick the tires
 
-Note: the default configuration assumes that `aws_core` is running locally. Pass `--router_server=127.0.0.1:4998` to `runserver.py` if it is in a different location.
+Note: the default configuration uses `demo.vapor.io` and uses OpenDCRE instead of core. If you'd like to use a different backend (or mode), check out `--help`.
 
 ### From the web
 
-    make build run router=127.0.0.1:4998
-
-Make sure you update to point to where your router is running. If you're running it on localhost, you'll need to figure out what the docker bridge is (`ifconfig` and look for docker0's IP address).
+    make build run
 
 At this point there is an interactive terminal running that you can do interactive queries with. Send your browser to `http://localhost:5001/graphql` and play around. Click the `Docs` tab on the right for the schema or go to `tests/queries/` to look at some example queries.
 

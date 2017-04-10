@@ -1,4 +1,2 @@
-router_server: localhost:4998
 username: admin
 password: Vapor
-port: 5001

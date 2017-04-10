@@ -12,6 +12,7 @@ import functools
 import graphene
 
 from . import util
+from .. import config
 
 
 def resolve_fields(cls):
@@ -67,6 +68,7 @@ class DeviceInterface(graphene.Interface):
 
     id = graphene.String(required=True)
     device_type = graphene.String(required=True)
+    info = graphene.String(required=True)
     location = graphene.Field(Location, required=True)
 
     def resolve_location(self, *args, **kwargs):
@@ -82,6 +84,7 @@ class DeviceBase(graphene.ObjectType):
         return globals().get(cls.__name__)(
             id=data.get("device_id"),
             device_type=data.get("device_type"),
+            info=data.get("device_info", ""),
             _parent=parent,
             _data=data
         )
@@ -100,6 +103,13 @@ class DeviceBase(graphene.ObjectType):
 
     @functools.lru_cache(maxsize=1)
     def _resolve_detail(self):
+        if config.options.get("mode") == 'opendcre':
+            return util.make_request("read/{0}/{1}/{2}/{3}".format(
+                self.device_type,
+                self.rack_id,
+                self.board_id,
+                self.id))
+
         return util.make_request("read/{0}/{1}/{2}/{3}/{4}".format(
             self.cluster_id,
             self.rack_id,
@@ -205,11 +215,25 @@ class PowerDevice(DeviceBase):
 
     @functools.lru_cache(maxsize=1)
     def _resolve_detail(self):
-        return util.make_request("power/{0}/{1}/{2}/{3}/status".format(
-            self.cluster_id,
+        base = "power"
+        if config.options.get("mode") == 'core':
+            base += '/{0}'.format(self.cluster_id)
+
+        data = util.make_request("{0}/{1}/{2}/{3}/status".format(
+            base,
             self.rack_id,
             self.board_id,
             self.id))
+
+        if config.options.get("mode") == 'opendcre':
+            data.update({
+                "input_voltage": 0.0,
+                "output_current": 0.0,
+                "pmbus_raw": "",
+                "under_voltage": False
+            })
+
+        return data
 
 
 # thomasr: this is a huge cut and paste because of something weird going on
@@ -279,12 +303,15 @@ class LedDevice(DeviceBase):
 
     @functools.lru_cache(maxsize=1)
     def _resolve_detail(self):
-        return util.make_request(
-            "led/{0}/{1}/{2}/{3}".format(
-                self.cluster_id,
-                self.rack_id,
-                self.board_id,
-                self.id))
+        base = "led"
+        if config.options.get("mode") == 'core':
+            base += '/{0}'.format(self.cluster_id)
+
+        return util.make_request("{0}/{1}/{2}/{3}".format(
+            base,
+            self.rack_id,
+            self.board_id,
+            self.id))
 
 
 class BoardInfo(graphene.ObjectType):

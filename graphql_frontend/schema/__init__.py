@@ -10,6 +10,7 @@
 import graphene
 
 from . import device, util
+from .. import config
 from .cluster import Cluster
 from .notification import Notification
 
@@ -40,6 +41,9 @@ class System(graphene.ObjectType):
 
     @graphene.resolve_only_args
     def resolve_clusters(self, id=None):
+        if config.options.get('mode') == 'opendcre':
+            return [Cluster(id='main')]
+
         return [Cluster(id=c["cluster_id"], _routing=c)
                 for c in util.arg_filter(
                     id,
@@ -49,6 +53,9 @@ class System(graphene.ObjectType):
 
     @graphene.resolve_only_args
     def resolve_notifications(self, _id=None):
+        if config.options.get('mode') == 'opendcre':
+            return []
+
         return [Notification.build(d)
                 for d in util.arg_filter(
                     _id,

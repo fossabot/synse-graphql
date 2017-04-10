@@ -12,6 +12,7 @@ import functools
 import graphene
 
 from . import util
+from .. import config
 from .board import Board
 
 
@@ -24,6 +25,7 @@ class Rack(graphene.ObjectType):
     _parent = None
 
     id = graphene.String(required=True)
+    rack_id = graphene.String(required=True)
 
     # routing table
     is_leader = graphene.Boolean(required=True)
@@ -41,13 +43,29 @@ class Rack(graphene.ObjectType):
 
     @functools.lru_cache(maxsize=1)
     def _request_assets(self):
+        if config.options.get('mode') == 'opendcre':
+            return {
+                "failed_servers": "",
+                "server_count": ""
+            }
+
         return util.make_request(
             "asset/{0}/{1}".format(self._parent.id, self.id))
 
     def get_asset(self, asset, *args, **kwargs):
         return self._request_assets().get(asset, "")
 
+    def _rack_info(self):
+        for rack in filter(lambda x: x.get("rack_id") == self.id,
+                           self._parent._routing.get('racks')):
+            return rack
+
+        raise Exception("Rack ID does not exist.")
+
     def get_boards(self):
+        if config.options.get('mode') == 'opendcre':
+            return self._rack_info().get("boards")
+
         return util.make_request(
             "inventory/{0}/{1}".format(self._parent.id, self.id)
             ).get("clusters", [])[0].get("racks")[0].get("boards")
@@ -55,7 +73,14 @@ class Rack(graphene.ObjectType):
     @staticmethod
     def build(parent, info):
         _id = info["rack_id"]
-        info.pop("rack_id")
+
+        if config.options.get('mode') == 'opendcre':
+            info.update({
+                "is_leader": False,
+                "is_shadow": False,
+                "vec_ip": ""
+            })
+
         return Rack(id=_id, _parent=parent, **info)
 
     @graphene.resolve_only_args
