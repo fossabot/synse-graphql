@@ -148,7 +148,7 @@ class TemperatureDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    temperature_c = graphene.String(required=True)
+    temperature_c = graphene.Float(required=True)
 
 
 @resolve_fields

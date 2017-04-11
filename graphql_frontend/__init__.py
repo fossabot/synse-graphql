@@ -10,6 +10,7 @@
 from flask import Flask
 from flask_graphql import GraphQLView
 
+
 import graphql_frontend.config
 import graphql_frontend.prometheus
 import graphql_frontend.schema
@@ -32,7 +33,9 @@ def main():
 
     app.add_url_rule(
         '/metrics',
-        view_func=graphql_frontend.prometheus.get
+        view_func=graphql_frontend.prometheus.metrics
         )
+
+    graphql_frontend.prometheus.refresh()
 
     app.run(host='0.0.0.0', port=graphql_frontend.config.options.get('port'))

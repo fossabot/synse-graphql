@@ -6,10 +6,13 @@
     \\//
      \/apor IO
 """
-
+from datetime import datetime
 import logging
+from pytz import utc
 
+from apscheduler.schedulers.background import BackgroundScheduler
 import prometheus_client
+from prometheus_client.core import _INF
 import prometheus_client.exposition
 
 import graphql_frontend.schema
@@ -20,11 +23,6 @@ query = '''{
         id
         racks {
             id
-            is_leader
-            is_shadow
-            vec_ip
-            failed_servers
-            server_count
             boards {
                 id
                 devices {
@@ -33,9 +31,6 @@ query = '''{
                     device_type
                     ... on TemperatureDevice {
                         temperature_c
-                    }
-                    ... on PressureDevice {
-                        pressure_kpa
                     }
                     ... on FanSpeedDevice {
                         speed_rpm
@@ -49,7 +44,10 @@ query = '''{
     }
 }'''
 
-_gauges = {}
+_metrics = {
+    "histogram": {},
+    "gauge": {}
+}
 
 
 class Device(object):
@@ -69,35 +67,68 @@ class Device(object):
         "device_type"
     ]
 
+    _buckets = {
+        "fan_speed": list(range(0, 8500, 500)) + [_INF],
+        "temperature": list(range(0, 95, 5)) + [_INF],
+        "power": list(range(0, 400, 10)) + [_INF]
+    }
+
     def __init__(self, cluster, rack, board, device):
         self._cluster = cluster
         self._rack = rack
         self._board = board
         self._device = device
 
-    def gauge(self, param):
-        name = 'device_{0}_{1}'.format(self._device.get('device_type'), param)
-        if name not in _gauges:
-            _gauges[name] = prometheus_client.Gauge(
-                name,
-                '',
-                self.default_labels)
+    @property
+    def type(self):
+        return self._device.get("device_type")
 
-        return _gauges.get(name).labels(
+    @property
+    def labels(self):
+        return [
             self._cluster.get("id"),
             self._rack.get("id"),
             self._board.get("id"),
             self._device.get("id"),
             self._device.get("info"),
-            self._device.get("device_type"))
+            self.type
+        ]
+
+    def name(self, _type, param):
+        return 'device_{0}_{1}_{2}'.format(self.type, _type, param)
+
+    def histogram(self, name):
+        return prometheus_client.Histogram(
+            name,
+            '',
+            self.default_labels,
+            buckets=self._buckets.get(self.type))
+
+    def gauge(self, name):
+        return prometheus_client.Gauge(name, '', self.default_labels)
+
+    def get_metric(self, _type, param):
+        name = self.name(_type, param)
+        if name not in _metrics.get(_type):
+            _metrics.get(_type)[name] = getattr(self, _type)(name)
+
+        return _metrics.get(_type).get(name).labels(*self.labels)
 
     def record(self):
         for k, v in self._device.items():
             if k in self._filter_keys:
                 continue
-            self.gauge(k).set(v)
+            try:
+                self.get_metric('gauge', k).set(v)
+                self.get_metric('histogram', k).observe(v)
+            except Exception as ex:
+                logging.error("failed to log metric: {0}".format(self.type))
 
 
+summary = prometheus_client.Summary('device_refresh_seconds', '')
+
+
+@summary.time()
 def get():
     schema = graphql_frontend.schema.create()
     result = schema.execute(query)
@@ -121,4 +152,16 @@ def get():
                         continue
                     Device(cluster, rack, board, device).record()
 
+
+def refresh():
+    scheduler = BackgroundScheduler(timezone=utc)
+    scheduler.add_job(
+        get,
+        'interval',
+        minutes=5,
+        next_run_time=datetime.now(utc))
+    scheduler.start()
+
+
+def metrics():
     return prometheus_client.exposition.generate_latest()
