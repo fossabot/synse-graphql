@@ -25,7 +25,7 @@ class Notification(graphene.ObjectType):
     code = graphene.Int(required=True)
     resolved_on = graphene.String()
     severity = graphene.String(required=True)
-    source = graphene.Field(NotificationSource)
+    source = graphene.Field(NotificationSource, required=True)
     status = graphene.String(required=True)
     text = graphene.String(required=True)
     timestamp = graphene.String(required=True)
