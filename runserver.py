@@ -8,11 +8,10 @@
      \/apor IO
 """
 
-from graphql_frontend import config
-from graphql_frontend import main, setup_logging
+from synse_graphql import app, config, log
 
 
 if __name__ == '__main__':
     config.parse_args()
-    setup_logging()
-    main()
+    log.setup_logging()
+    app.main()

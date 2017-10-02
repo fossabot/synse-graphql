@@ -1,0 +1,18 @@
+version: "3"
+services:
+  synse-graphql-test:
+    container_name: synse-graphql-test
+    image: vaporio/synse-graphql-test:${GIT_VER}
+    build:
+      context: ..
+      dockerfile: dockerfile/test.dockerfile
+    volumes:
+      - ..:/code
+    command: bin/run_tests.sh
+
+  synse-server:
+    container_name: synse-server
+    image: vaporio/synse-server:latest
+    expose:
+      - 5000
+

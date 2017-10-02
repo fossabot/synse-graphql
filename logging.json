@@ -17,7 +17,7 @@
     "": {
       "handlers": ["default"],
       "level": "DEBUG",
-      "propogate": true
+      "propagate": true
     }
   }
 }

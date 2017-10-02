@@ -10,7 +10,7 @@
 import configargparse
 
 parser = configargparse.ArgParser(default_config_files=[
-    "/graphql_frontend/config.yaml"
+    '/synse_graphql/config.yaml'
 ])
 parser.add('-c', '--my-config', is_config_file=True, help='config file path')
 parser.add(
@@ -23,6 +23,12 @@ parser.add(
     env_var='BACKEND',
     default='demo.vapor.io:5000',
     help='Path to the backend to use. example: "demo.vapor.io:5000"')
+parser.add(
+    '--version',
+    env_var='BACKEND_VERSION',
+    default=None,
+    help='The API version of the Synse instance being connected to.'
+)
 
 options = None
 

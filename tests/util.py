@@ -13,9 +13,9 @@ import os
 
 import testtools
 
-import graphql_frontend.config
-import graphql_frontend.schema
-from graphql_frontend import setup_logging
+import synse_graphql.config
+import synse_graphql.schema
+from synse_graphql.log import setup_logging
 
 QUERY_PREVIEW_LENGTH = 1000
 
@@ -24,14 +24,14 @@ class BaseSchemaTest(testtools.TestCase):
 
     def setUp(self):
         super(BaseSchemaTest, self).setUp()
-        setup_logging("logging-test.json")
+        setup_logging('logging-test.json')
 
-        if graphql_frontend.config.options is None:
-            graphql_frontend.config.parse_args([
+        if synse_graphql.config.options is None:
+            synse_graphql.config.parse_args([
                 '--backend',
-                'localhost:5000'
+                'synse-server:5000'
             ])
-        self.schema = graphql_frontend.schema.create()
+        self.schema = synse_graphql.schema.create()
 
     def get_query(self, name):
         path = os.path.normpath(os.path.join(
