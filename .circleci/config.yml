@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: vaporio/build-base:7582146
+    working_directory: ~/code
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          reusable: true
+          exclusive: false
+
+      - run:
+          name: Run the tests.
+          command: |
+            make circleci

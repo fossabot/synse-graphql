@@ -21,12 +21,12 @@ parser.add(
 parser.add(
     '--backend',
     env_var='BACKEND',
-    default='demo.vapor.io:5000',
+    default='synse-server:5000',
     help='Path to the backend to use. example: "demo.vapor.io:5000"')
 parser.add(
     '--version',
     env_var='BACKEND_VERSION',
-    default=None,
+    default='1.4',
     help='The API version of the Synse instance being connected to.'
 )
 

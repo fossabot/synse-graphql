@@ -11,10 +11,7 @@
 from flask import Flask, make_response
 from flask_graphql import GraphQLView
 
-from synse_graphql import config
-from synse_graphql import prometheus
-from synse_graphql import schema
-
+from synse_graphql import config, schema
 
 app = Flask(__name__)
 
@@ -33,12 +30,5 @@ def main():
             'graphql',
             schema=local_schema,
             graphiql=True))
-
-    app.add_url_rule(
-        '/metrics',
-        view_func=prometheus.metrics
-        )
-
-    prometheus.refresh()
 
     app.run(host='0.0.0.0', port=config.options.get('port'))

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  graphql:
+    container_name: synse-graphql
+    image: vaporio/synse-graphql:${GIT_VER}
+    build:
+      context: ..
+      dockerfile: dockerfile/base.dockerfile

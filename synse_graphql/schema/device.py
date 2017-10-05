@@ -1,3 +1,4 @@
+
 """ Device schema
 
     Author: Thomas Rampelberg
@@ -52,7 +53,7 @@ def setup_resolve(cls):
     return cls
 
 
-def resolve_class(self, field, cls, *args, **kwargs):  # pylint: disable=unused-argument
+def resolve_class(self, field, cls, *_):
     """ Partial method that will be used in `setup_resolve` to be
     applied to a decorated class.
 
@@ -60,8 +61,6 @@ def resolve_class(self, field, cls, *args, **kwargs):  # pylint: disable=unused-
         self: reference to the decorated class.
         field: the field for which a 'resolve' method will be created.
         cls: the class associated with the given field.
-        args: additional arguments.
-        kwargs: additional keyword arguments.
     """
     return cls(**self._data.get(field))
 
@@ -249,14 +248,11 @@ class DeviceBase(graphene.ObjectType):
             self.board_id,
             self.id))
 
-    def _request_data(self, field, args, context, info):  # pylint: disable=unused-argument
+    def _request_data(self, field, *_):
         """ Get the specified field from a device request response.
 
         Args:
             field: the field to extract from the request response.
-            args: unused
-            context: unused
-            info: unused
         """
         return self._resolve_detail().get(field)
 
