@@ -7,25 +7,30 @@
 #  Date:   24 Feb 2017
 # ------------------------------------------------------------------------
 
-image := vaporio/graphql-frontend-x64
+IMG_NAME := vaporio/graphql-frontend-x64
+PKG_VER := $(shell python synse_graphql/__init__.py)
+export GIT_VER := $(shell /bin/sh -c "git log --pretty=format:'%h' -n 1 || echo 'none'")
 
+.PHONY: build
 build:
-	docker-compose -f docker-compose.yml build
+	docker build -f dockerfile/release.dockerfile \
+	    -t ${IMG_NAME}:latest \
+	    -t ${IMG_NAME}:${PKG_VER} \
+	    -t ${IMG_NAME}:${GIT_VER} .
 
-# get date for tagging on push
-date := $(shell /bin/date "+%m%d%y-%H%M")
 
-dev:
-	docker-compose -f docker-compose.yml run --rm test /bin/sh
-
+.PHONY: test
 test:
-	docker-compose -f docker-compose.yml run --rm test tox
+	docker-compose -f compose/test.yml up \
+	    --build \
+	    --abort-on-container-exit \
+	    --exit-code-from synse-graphql-test
 
-clean:
-	docker-compose -f docker-compose.yml down
 
-run:
-	docker-compose -f docker-compose.yml run --service-ports --rm graphql_frontend
+# FIXME - needs a dev composefile
+#dev:
+#	docker-compose -f docker-compose.yml run --rm test /bin/sh
+
 
 # meant to be run from within the docker container
 one:

@@ -20,6 +20,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -44,30 +45,19 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+results/
+prof/
 
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-
 # Flask stuff:
 instance/
 .webassets-cache
 
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
-
-# IPython Notebook
-.ipynb_checkpoints
 
 # pyenv
 .python-version
@@ -79,11 +69,14 @@ celerybeat-schedule
 .env
 
 # virtualenv
+.venv
 venv/
 ENV/
 
-# Spyder project settings
-.spyderproject
+.vagrant
+.idea
+.DS_Store
 
-# Rope project settings
-.ropeproject
+# packages
+*.rpm
+*.deb

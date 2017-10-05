@@ -1,4 +1,4 @@
-""" Notification Schema
+""" Notification schema
 
     Author: Thomas Rampelberg
     Date:   2/27/2017
@@ -11,6 +11,8 @@ import graphene
 
 
 class NotificationSource(graphene.ObjectType):
+    """ Model for the source of a Notification.
+    """
     BoardID = graphene.String()
     DeviceID = graphene.String()
     DeviceType = graphene.String()
@@ -21,6 +23,8 @@ class NotificationSource(graphene.ObjectType):
 
 
 class Notification(graphene.ObjectType):
+    """ Model for a Notification.
+    """
     _id = graphene.String(required=True)
     code = graphene.Int(required=True)
     resolved_on = graphene.String()
@@ -32,5 +36,13 @@ class Notification(graphene.ObjectType):
 
     @staticmethod
     def build(body):
+        """ Build a new Notification object.
+
+        Args:
+            body (dict): the data for the notification.
+
+        Returns:
+            Notification: a new notification object.
+        """
         return Notification(
-            source=NotificationSource(**body.pop("source")), **body)
+            source=NotificationSource(**body.pop('source')), **body)

@@ -7,6 +7,7 @@
 *~
 .directory
 .Trash-*
+**/packages
 
 # OSX
 .DS_Store
@@ -23,19 +24,26 @@
 
 # Python
 *.py[cod]
-__pycache__
+**/__pycache__
+**/.tox
+.pep8
 
 # Logs
+logs/
 *.log
 
 # Docker
 Dockerfile.*
+**/*.dockerfile
 
-# Markdown
-*.md
+# Docs
+docs/
+**/*.md
+**/*.rst
 
-# ignore ldap server
-ldap
+# Images
+**/*.png
 
-# ignore node_modules folder
-node_modules
+# Test Artifacts
+prof/
+results/
