@@ -10,7 +10,7 @@
 import configargparse
 
 parser = configargparse.ArgParser(default_config_files=[
-    '/synse_graphql/config.yaml'
+    '/code/config.yaml'
 ])
 parser.add('-c', '--my-config', is_config_file=True, help='config file path')
 parser.add(
