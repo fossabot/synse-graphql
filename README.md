@@ -1,4 +1,4 @@
-synse-graphql provides a GraphQL API over the top of synse-server's existing REST API. This is particularly useful for exploring the data available and having a single query for all of your sensors.
+synse-graphql provides a GraphQL API that enables complex querying of your data center and IT equipment. The API comes with an interactive query application for exploration of the Synse APIs and provides a simple interface for common integrations.
 
 # Kick the tires
 
