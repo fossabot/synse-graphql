@@ -7,8 +7,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ../config/bmc.json:/synse/bmc_config.json
-      - ../config/ipmi.json:/synse/override/config.json
+      - config:/synse/override
     environment:
       - VAPOR_DEBUG=true
     links:
@@ -55,3 +54,7 @@ services:
     restart: on-failure
     expose:
       - 623/udp
+
+volumes:
+  config:
+    external: true

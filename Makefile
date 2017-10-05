@@ -53,3 +53,11 @@ down:
 .PHONY: logs
 logs:
 	docker-compose -f compose/base.yml -f compose/dev.yml logs
+
+.PHONY: config-volume
+config-volume:
+	docker volume create source
+	docker run -v config:/scratch --name helper busybox true
+	docker cp config/bmc.json helper:/scratch
+	docker cp config/config.json helper:/scratch
+	docker rm helper
