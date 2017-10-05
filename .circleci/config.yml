@@ -13,6 +13,11 @@ jobs:
           exclusive: false
 
       - run:
+          name: Docker Private Images (temporary)
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PS
+
+      - run:
           name: Run the tests.
           command: |
             make build circleci
