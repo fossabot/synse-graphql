@@ -1,8 +1,12 @@
+synse-graphql provides a GraphQL API over the top of synse-server's existing REST API. This is particularly useful for exploring the data available and having a single query for all of your sensors.
+
 # Kick the tires
 
 ```bash
 make run
 ```
+
+At this point there is an interactive terminal running that you can do interactive queries with. Send your browser to `http://localhost:5001/graphql` and play around. Click the `Docs` tab on the right for the schema or go to `tests/queries/` to look at some example queries.
 
 To stop it, you can run:
 
@@ -10,9 +14,15 @@ To stop it, you can run:
 make down
 ```
 
-At this point there is an interactive terminal running that you can do interactive queries with. Send your browser to `http://localhost:5001/graphql` and play around. Click the `Docs` tab on the right for the schema or go to `tests/queries/` to look at some example queries.
-
 Note: the default configuration uses the embedded synse-server and ipmi emulator. If you'd like to use a different backend, check out `--help`.
+
+# Usage
+
+```bash
+docker run -it --rm vaporio/synse-graphql python runserver.py --help
+```
+
+- To specify which synse-server to collect data from, set the BACKEND environment variable to the url of synse-server.
 
 # Development
 

@@ -1,8 +1,8 @@
 
-VERSION = "0.1"
+VERSION = "1.0.0"
 
 config = {
-    'name': 'graphql_frontend',
+    'name': 'synse_graphql',
     'version': VERSION,
     'author': 'Thomas Rampelberg',
     'author_email': 'thomasr@vapor.io',

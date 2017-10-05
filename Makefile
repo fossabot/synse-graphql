@@ -13,7 +13,7 @@ export GIT_VER := $(shell /bin/sh -c "git log --pretty=format:'%h' -n 1 || echo 
 
 .PHONY: build
 build:
-	docker build -f dockerfile/release.dockerfile \
+	docker build -f dockerfile/base.dockerfile \
 		-t ${IMG_NAME}:latest \
 		-t ${IMG_NAME}:${PKG_VER} \
 		-t ${IMG_NAME}:${GIT_VER} .
