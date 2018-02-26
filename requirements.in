@@ -1,0 +1,10 @@
+flask
+flask-graphql
+requests
+graphene
+inflection
+ConfigArgParse
+prometheus_client
+APScheduler
+pytz
+gevent

@@ -1,5 +1,5 @@
 {
-  racks(id:"rack_1") {
+  racks(id:"rack-1") {
     id
   }
 }

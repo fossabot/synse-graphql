@@ -1,7 +1,7 @@
 {
-  racks(id:"rack_1") {
+  racks(id:"rack-1") {
     boards {
-      devices(device_type:"system") {
+      devices(device_type:"temperature") {
         device_type
       }
     }
