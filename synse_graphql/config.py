@@ -25,8 +25,9 @@ parser.add(
     help='Path to the backend to use. example: "demo.vapor.io:5000"')
 parser.add(
     '--version',
+    choices=['2.0'],
     env_var='BACKEND_VERSION',
-    default='1.4',
+    default='2.0',
     help='The API version of the Synse instance being connected to.'
 )
 

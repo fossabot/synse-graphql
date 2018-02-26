@@ -1,9 +1,9 @@
 {
-  racks(id:"rack_1") {
+  racks(id:"rack-1") {
     boards {
       devices(device_type:"temperature") {
         ... on TemperatureDevice {
-          temperature_c
+          temperature
         }
       }
     }

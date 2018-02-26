@@ -15,12 +15,10 @@ from ..util import BaseSchemaTest
 class TestRack(BaseSchemaTest):
 
     def get_racks(self, query):
-        return self.run_query(query).data.get("racks")
+        return self.run_query(query).get('data').get("racks")
 
     def test_query(self):
-        keys = [
-            "id"
-        ]
+        keys = ["id"]
         self.assertItemsEqual(self.get_racks("test_racks")[0].keys(), keys)
 
     def test_id_arg(self):

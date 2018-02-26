@@ -42,11 +42,7 @@ class Cluster(graphene.ObjectType):
     """
 
     # Schema
-    racks = graphene.List(
-        lambda: Rack,
-        required=True,
-        id=graphene.String()
-    )
+    racks = graphene.List(Rack, required=True, id=graphene.String())
 
     @functools.lru_cache(maxsize=1)
     def _request_assets(self):
@@ -57,8 +53,7 @@ class Cluster(graphene.ObjectType):
         """
         return dict([(k, '') for k in self._assets])
 
-    @graphene.resolve_only_args
-    def resolve_racks(self, id=None):
+    def resolve_racks(self, info, id=None):
         """Resolve the racks that belong to the cluster.
 
         Args:
@@ -71,5 +66,5 @@ class Cluster(graphene.ObjectType):
         return [Rack.build(self, r)
                 for r in util.arg_filter(
                     id,
-                    lambda x: x.get('rack_id') == id,
+                    lambda x: x.get('id') == id,
                     util.make_request('scan').get('racks'))]

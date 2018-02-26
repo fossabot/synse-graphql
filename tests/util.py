@@ -11,6 +11,7 @@ import json
 import logging
 import os
 
+import graphene.test
 import testtools
 
 import synse_graphql.config
@@ -31,7 +32,7 @@ class BaseSchemaTest(testtools.TestCase):
                 '--backend',
                 'synse-server:5000'
             ])
-        self.schema = synse_graphql.schema.create()
+        self.client = graphene.test.Client(synse_graphql.schema.create())
 
     def get_query(self, name):
         path = os.path.normpath(os.path.join(
@@ -40,21 +41,21 @@ class BaseSchemaTest(testtools.TestCase):
             return fobj.read()
 
     def output(self, result):
-        print(json.dumps(result.data, indent=4)[:QUERY_PREVIEW_LENGTH])
+        print(json.dumps(result.get('data'), indent=4)[:QUERY_PREVIEW_LENGTH])
 
     def assertQuery(self, result):
-        if result.errors is None:
-            result.errors = []
+        if result.get('errors') is None:
+            result['errors'] = []
 
-        for error in result.errors:
+        for error in result['errors']:
             logging.exception("Query error", exc_info=error)
             if hasattr(error, "message"):
                 logging.debug(error.message)
 
-        self.assertFalse(result.errors)
+        self.assertFalse(result['errors'])
         self.output(result)
 
     def run_query(self, name):
-        result = self.schema.execute(self.get_query(name))
+        result = self.client.execute(self.get_query(name))
         self.assertQuery(result)
         return result

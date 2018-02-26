@@ -20,7 +20,6 @@ class Rack(graphene.ObjectType):
     _parent = None
 
     id = graphene.String(required=True)
-    rack_id = graphene.String(required=True)
 
     boards = graphene.List(
         lambda: Board,
@@ -46,12 +45,9 @@ class Rack(graphene.ObjectType):
         Returns:
             Rack: a new Rack instance
         """
-        _id = info['rack_id']
+        return Rack(_parent=parent, _info=info, **info)
 
-        return Rack(id=_id, _parent=parent, _info=info, **info)
-
-    @graphene.resolve_only_args
-    def resolve_boards(self, id=None):
+    def resolve_boards(self, info, id=None):
         """ Resolve the Boards that are associated with the Rack.
 
         Args:
@@ -64,5 +60,5 @@ class Rack(graphene.ObjectType):
         return [Board.build(self, b)
                 for b in util.arg_filter(
                     id,
-                    lambda x: x.get('board_id') == id,
+                    lambda x: x.get('id') == id,
                     self.get_boards())]

@@ -38,7 +38,7 @@ class Board(graphene.ObjectType):
         Returns:
             Board: a new Board instance
         """
-        return Board(id=data.get('board_id'), _data=data, _parent=parent)
+        return Board(_data=data, _parent=parent, **data)
 
     @staticmethod
     def device_class(device_type):
@@ -53,11 +53,9 @@ class Board(graphene.ObjectType):
         """
         return getattr(
             device,
-            '{0}Device'.format(inflection.camelize(device_type)),
-            device.SensorDevice)
+            '{0}Device'.format(inflection.camelize(device_type)))
 
-    @graphene.resolve_only_args
-    def resolve_devices(self, device_type=None):
+    def resolve_devices(self, info, device_type=None):
         """Resolve all associated devices into their Device model.
 
         Args:
@@ -67,8 +65,8 @@ class Board(graphene.ObjectType):
             list[Device]: a list of all resolved devices associated with this
                 board.
         """
-        return [self.device_class(d.get('device_type')).build(self, d)
+        return [self.device_class(d.get('type')).build(self, d)
                 for d in util.arg_filter(
                     device_type,
-                    lambda x: x.get('device_type') == device_type,
+                    lambda x: x.get('type') == device_type,
                     self._data.get('devices'))]

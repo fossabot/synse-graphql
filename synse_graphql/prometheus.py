@@ -10,6 +10,7 @@
 import logging
 from datetime import datetime
 
+import graphene.test
 import prometheus_client
 import prometheus_client.exposition
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -28,13 +29,15 @@ query = '''{
                 info
                 device_type
                 ... on TemperatureDevice {
-                    temperature_c
+                    temperature
                 }
-                ... on FanSpeedDevice {
-                    speed_rpm
+                ... on FanDevice {
+                    fan_speed
                 }
-                ... on PowerDevice {
-                    input_power
+                ... on LedDevice {
+                    blink
+                    color
+                    state
                 }
             }
         }
@@ -64,9 +67,8 @@ class Device(object):
     ]
 
     _buckets = {
-        'fan_speed': list(range(0, 8500, 500)) + [_INF],
+        'fan': list(range(0, 8500, 500)) + [_INF],
         'temperature': list(range(0, 95, 5)) + [_INF],
-        'power': list(range(0, 400, 10)) + [_INF]
     }
 
     def __init__(self, rack, board, device):
@@ -116,23 +118,47 @@ class Device(object):
                 self.get_metric('gauge', k).set(v)
                 self.get_metric('histogram', k).observe(v)
             except Exception as ex:
-                logging.error('failed to log metric: {0}'.format(self.type))
+                logging.exception(
+                    'failed to log metric: {0}'.format(self.type))
+
+
+class LedDevice(Device):
+
+    _handlers = {
+        'blink': lambda x: 0 if x == 'steady' else 1,
+        'color': lambda x: int(x, 16),
+        'state': lambda x: 0 if x == 'off' else 1,
+    }
+
+    def record(self):
+        for k, v in self._device.items():
+            if k in self._filter_keys:
+                continue
+            try:
+                self.get_metric('gauge', k).set(self._handlers.get(k)(v))
+            except Exception as ex:
+                logging.exception(
+                    'failed to log metric: {0}'.format(self.type))
 
 
 summary = prometheus_client.Summary('device_refresh_seconds', '')
 
+handlers = {
+    'led': LedDevice,
+}
+
 
 @summary.time()
 def get():
-    schema = synse_graphql.schema.create()
-    result = schema.execute(query)
+    client = graphene.test.Client(synse_graphql.schema.create())
+    result = client.execute(query)
 
-    for error in result.errors:
+    for error in result.get('errors', []):
         logging.exception('Query error', exc_info=error)
         if hasattr(error, 'message'):
             logging.debug(error.message)
 
-    for rack in result.data.get('racks'):
+    for rack in result.get('data').get('racks'):
         if not rack:
             continue
         for board in rack.get('boards'):
@@ -141,7 +167,8 @@ def get():
             for device in board.get('devices'):
                 if not device:
                     continue
-                Device(rack, board, device).record()
+                handlers.get(device.get('device_type'), Device)(
+                    rack, board, device).record()
 
 
 def refresh():
@@ -149,7 +176,7 @@ def refresh():
     scheduler.add_job(
         get,
         'interval',
-        minutes=5,
+        minutes=1,
         next_run_time=datetime.now(utc))
     scheduler.start()
 
