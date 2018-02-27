@@ -35,6 +35,28 @@ class TestDevice(BaseSchemaTest):
     def test_type_arg(self):
         self.assertEqual(len(self.get_devices("test_device_type_arg")), 5)
 
+    def test_airflow(self):
+        keys = [
+            "airflow"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_airflow_device")[0].keys(), keys)
+
+    def test_differential_pressure(self):
+        keys = [
+            "pressure"
+        ]
+        self.assertItemsEqual(
+            self.get_devices(
+                "test_differential_pressure_device")[0].keys(), keys)
+
+    def test_humidity(self):
+        keys = [
+            "humidity"
+        ]
+        self.assertItemsEqual(
+            self.get_devices("test_humidity_device")[0].keys(), keys)
+
     def test_temperature(self):
         keys = ["temperature"]
         self.assertItemsEqual(
