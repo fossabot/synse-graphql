@@ -28,16 +28,25 @@ query = '''{
                 id
                 info
                 device_type
-                ... on TemperatureDevice {
-                    temperature
+                ... on AirflowDevice {
+                  airflow
+                }
+                ... on DifferentialPressureDevice {
+                  pressure
                 }
                 ... on FanDevice {
                     fan_speed
+                }
+                ... on HumidityDevice {
+                  humidity
                 }
                 ... on LedDevice {
                     blink
                     color
                     state
+                }
+                ... on TemperatureDevice {
+                    temperature
                 }
             }
         }
@@ -67,7 +76,10 @@ class Device(object):
     ]
 
     _buckets = {
+        'airflow': [0, _INF],
+        'differential_pressure': [0, _INF],
         'fan': list(range(0, 8500, 500)) + [_INF],
+        'humidity': [0, _INF],
         'temperature': list(range(0, 95, 5)) + [_INF],
     }
 

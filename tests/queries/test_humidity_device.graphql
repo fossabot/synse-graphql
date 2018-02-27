@@ -1,0 +1,11 @@
+{
+  racks(id:"rack-1") {
+    boards {
+      devices(device_type:"humidity") {
+        ... on HumidityDevice {
+          humidity
+        }
+      }
+    }
+  }
+}

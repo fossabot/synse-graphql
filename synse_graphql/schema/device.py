@@ -85,6 +85,10 @@ class DeviceBase(graphene.ObjectType):
     def _resolve_detail(self):
         """ Make a read request for the given device.
         """
+        print(util.make_request('read/{0}/{1}/{2}'.format(
+            self.rack_id,
+            self.board_id,
+            self.id)))
         return util.make_request('read/{0}/{1}/{2}'.format(
             self.rack_id,
             self.board_id,
@@ -100,18 +104,31 @@ class DeviceBase(graphene.ObjectType):
 
 
 @resolve_fields
-class TemperatureDevice(DeviceBase):
-    """ Model for a temperature type device.
-    """
+class AirflowDevice(DeviceBase):
+    """ Model for a Airflow type device. """
 
     _resolve_fields = [
-        'temperature'
+        'airflow'
     ]
 
     class Meta:
         interfaces = (DeviceInterface, )
 
-    temperature = graphene.Float()
+    airflow = graphene.Float(required=True)
+
+
+@resolve_fields
+class DifferentialPressureDevice(DeviceBase):
+    """ Model for a DifferentialPressure type device. """
+
+    _resolve_fields = [
+        'pressure'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    pressure = graphene.Float(required=True)
 
 
 @resolve_fields
@@ -127,6 +144,20 @@ class FanDevice(DeviceBase):
         interfaces = (DeviceInterface, )
 
     fan_speed = graphene.Int(required=True)
+
+
+@resolve_fields
+class HumidityDevice(DeviceBase):
+    """ Model for a Humidity type device. """
+
+    _resolve_fields = [
+        'humidity'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    humidity = graphene.Float(required=True)
 
 
 @resolve_fields
@@ -146,3 +177,18 @@ class LedDevice(DeviceBase):
     blink = graphene.String(required=True)
     color = graphene.String(required=True)
     state = graphene.String(required=True)
+
+
+@resolve_fields
+class TemperatureDevice(DeviceBase):
+    """ Model for a temperature type device.
+    """
+
+    _resolve_fields = [
+        'temperature'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    temperature = graphene.Float()
