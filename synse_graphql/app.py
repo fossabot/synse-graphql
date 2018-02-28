@@ -9,6 +9,7 @@
 """
 
 import gevent.pywsgi
+import graphql.execution.executors.gevent
 from flask import Flask, make_response
 from flask_graphql import GraphQLView
 
@@ -29,6 +30,7 @@ def main():
         '/graphql',
         view_func=GraphQLView.as_view(
             'graphql',
+            executor=graphql.execution.executors.gevent.GeventExecutor(),
             schema=local_schema,
             graphiql=True))
 
