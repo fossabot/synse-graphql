@@ -14,7 +14,7 @@ To stop it, you can run:
 make down
 ```
 
-Note: the default configuration uses the embedded synse-server and ipmi emulator. If you'd like to use a different backend, check out `--help`.
+Note: the default configuration uses the embedded synse-server and emulator. If you'd like to use a different backend, check out `--help`.
 
 # Usage
 
@@ -23,6 +23,7 @@ docker run -it --rm vaporio/synse-graphql python runserver.py --help
 ```
 
 - To specify which synse-server to collect data from, set the BACKEND environment variable to the url of synse-server.
+- You can specify multiple synse-server backends by passing more than one `--backend`.
 
 # Development
 

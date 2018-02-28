@@ -22,6 +22,7 @@ import synse_graphql.schema
 query = '''{
     racks {
         id
+        backend
         boards {
             id
             devices {
@@ -62,6 +63,7 @@ _metrics = {
 class Device(object):
 
     default_labels = [
+        'backend_name',
         'rack_id',
         'board_id',
         'device_id',
@@ -95,6 +97,7 @@ class Device(object):
     @property
     def labels(self):
         return [
+            self._rack.get('backend'),
             self._rack.get('id'),
             self._board.get('id'),
             self._device.get('id'),

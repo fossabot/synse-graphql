@@ -30,7 +30,7 @@ class BaseSchemaTest(testtools.TestCase):
         if synse_graphql.config.options is None:
             synse_graphql.config.parse_args([
                 '--backend',
-                'synse-server:5000'
+                'backend;;http://synse-server:5000'
             ])
         self.client = graphene.test.Client(synse_graphql.schema.create())
 
