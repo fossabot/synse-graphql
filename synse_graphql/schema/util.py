@@ -7,6 +7,7 @@
      \/apor IO
 """
 
+import concurrent.futures
 import functools
 import logging
 
@@ -20,7 +21,19 @@ SESSION = requests.Session()
 logger = logging.getLogger(__name__)
 
 
-def make_request(uri):
+def scan():
+    """Scan every backend and return the full device list.
+
+    Returns:
+    """
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        tasks = [executor.submit(lambda: (b, make_request(b, 'scan')))
+                 for b in config.options.get('backend').keys()]
+        for future in concurrent.futures.as_completed(tasks):
+            yield future.result()
+
+
+def make_request(backend, uri):
     """Make a request to the provided URI.
 
     Args:
@@ -30,19 +43,19 @@ def make_request(uri):
         the JSON loaded result from the request.
     """
     version = config.options.get('version')
-    backend = config.options.get('backend')
+    path = config.options.get('backend').get(backend)
 
     # if the version is unspecified, we'll have to get the version
     # from the synse instance.
     if version is None:
-        r = requests.get('http://{}/synse/version'.format(backend))
+        r = requests.get('{}/synse/version'.format(path))
         if r.ok:
-            version = r.json().get('version')
+            version = r.json().get('api_version')
         else:
             logger.warning('Unable to get API version of Synse.')
             r.raise_for_status()
 
-    base = 'http://{0}/synse/{1}/'.format(backend, version)
+    base = '{0}/synse/{1}/'.format(path, version)
     result = SESSION.get(requests.compat.urljoin(base, uri))
     result.raise_for_status()
     return result.json()

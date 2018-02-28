@@ -70,6 +70,11 @@ class DeviceBase(graphene.ObjectType):
         )
 
     @property
+    def backend(self):
+        """ The backend this device is associated with. """
+        return self._parent._parent.backend
+
+    @property
     def rack_id(self):
         """ Get the rack id for the rack which the device resides on.
         """
@@ -85,11 +90,7 @@ class DeviceBase(graphene.ObjectType):
     def _resolve_detail(self):
         """ Make a read request for the given device.
         """
-        print(util.make_request('read/{0}/{1}/{2}'.format(
-            self.rack_id,
-            self.board_id,
-            self.id)))
-        return util.make_request('read/{0}/{1}/{2}'.format(
+        return util.make_request(self.backend, 'read/{0}/{1}/{2}'.format(
             self.rack_id,
             self.board_id,
             self.id))

@@ -8,6 +8,7 @@
 """
 
 import functools
+import itertools
 
 import graphene
 
@@ -63,8 +64,10 @@ class Cluster(graphene.ObjectType):
             list[Rack]: a list of Rack objects that belong to the
                 cluster.
         """
-        return [Rack.build(self, r)
-                for r in util.arg_filter(
-                    id,
-                    lambda x: x.get('id') == id,
-                    util.make_request('scan').get('racks'))]
+        return itertools.chain.from_iterable(
+            [[
+                Rack.build(self, backend, rack)
+                for rack in util.arg_filter(
+                    id, lambda x: x.get('id') == id, data.get('racks'))
+            ] for backend, data in util.scan()]
+        )
