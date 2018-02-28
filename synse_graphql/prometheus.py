@@ -11,6 +11,7 @@ import logging
 from datetime import datetime
 
 import graphene.test
+import graphql.execution.executors.gevent
 import prometheus_client
 import prometheus_client.exposition
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -166,7 +167,9 @@ handlers = {
 @summary.time()
 def get():
     client = graphene.test.Client(synse_graphql.schema.create())
-    result = client.execute(query)
+    result = client.execute(
+        query,
+        executor=graphql.execution.executors.gevent.GeventExecutor())
 
     for error in result.get('errors', []):
         logging.exception('Query error', exc_info=error)
