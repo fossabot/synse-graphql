@@ -13,6 +13,7 @@ import logging
 
 import requests
 import requests.compat
+from requests.exceptions import HTTPError
 
 from synse_graphql import config
 
@@ -44,6 +45,13 @@ def make_request(backend, uri):
     """
     version = config.options.get('version')
     path = config.options.get('backend').get(backend)
+    bundle_path = config.options.get('cert_bundle')
+    if bundle_path:
+        SESSION.cert = bundle_path
+
+    ca_path = config.options.get('ssl_verify')
+    if ca_path:
+        SESSION.verify = ca_path
 
     # if the version is unspecified, we'll have to get the version
     # from the synse instance.
@@ -56,8 +64,14 @@ def make_request(backend, uri):
             r.raise_for_status()
 
     base = '{0}/synse/{1}/'.format(path, version)
-    result = SESSION.get(requests.compat.urljoin(base, uri))
-    result.raise_for_status()
+    try:
+        result = SESSION.get(requests.compat.urljoin(base, uri))
+        result.raise_for_status()
+    except HTTPError as ex:
+        logging.error('Error {} {}\n{}'.format(
+            ex.response.status_code, ex.request.url, ex.response.text))
+        raise ex
+
     return result.json()
 
 
