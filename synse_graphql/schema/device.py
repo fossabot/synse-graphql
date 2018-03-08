@@ -86,14 +86,18 @@ class DeviceBase(graphene.ObjectType):
         """
         return self._parent.id
 
+    @property
+    def _url(self):
+        return 'read/{0}/{1}/{2}'.format(
+            self.rack_id,
+            self.board_id,
+            self.id)
+
     @functools.lru_cache(maxsize=1)
     def _resolve_detail(self):
         """ Make a read request for the given device.
         """
-        return util.make_request(self.backend, 'read/{0}/{1}/{2}'.format(
-            self.rack_id,
-            self.board_id,
-            self.id))
+        return util.make_request(self.backend, self._url)
 
     def _request_data(self, field, *_):
         """ Get the specified field from a device request response.
@@ -101,7 +105,13 @@ class DeviceBase(graphene.ObjectType):
         Args:
             field: the field to extract from the request response.
         """
-        return self._resolve_detail().get('data').get(field).get('value')
+        result = self._resolve_detail().get('data').get(field).get('value')
+        if result == 'null':
+            raise Exception('Received null value - {}:{} {}'.format(
+                self.device_type,
+                field,
+                self._url))
+        return result
 
 
 @resolve_fields

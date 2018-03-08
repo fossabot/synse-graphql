@@ -176,6 +176,9 @@ def get():
         if hasattr(error, 'message'):
             logging.debug(error.message)
 
+        logging.error('Query failed')
+        return
+
     for rack in result.get('data').get('racks'):
         if not rack:
             continue

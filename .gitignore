@@ -80,3 +80,5 @@ ENV/
 # packages
 *.rpm
 *.deb
+
+tmp

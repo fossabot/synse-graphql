@@ -29,6 +29,15 @@ parser.add(
     default=['backend;;http://synse-server:5000'],
     help=backend_help)
 parser.add(
+    '--cert-bundle',
+    env_var='CERT_BUNDLE',
+    help='Client bundle to use for mutual auth. ' +
+         '(should contain both the private key and certificate')
+parser.add(
+    '--ssl-verify',
+    env_var='SSL_VERIFY',
+    help='CA certificate to use for verification.')
+parser.add(
     '--version',
     choices=['2.0'],
     env_var='BACKEND_VERSION',
