@@ -42,13 +42,13 @@ class TestDevice(BaseSchemaTest):
         self.assertItemsEqual(
             self.get_devices("test_airflow_device")[0].keys(), keys)
 
-    def test_differential_pressure(self):
+    def test_pressure(self):
         keys = [
             "pressure"
         ]
         self.assertItemsEqual(
             self.get_devices(
-                "test_differential_pressure_device")[0].keys(), keys)
+                "test_pressure_device")[0].keys(), keys)
 
     def test_humidity(self):
         keys = [

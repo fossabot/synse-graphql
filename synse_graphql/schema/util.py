@@ -56,7 +56,9 @@ def make_request(backend, uri):
     # if the version is unspecified, we'll have to get the version
     # from the synse instance.
     if version is None:
-        r = requests.get('{}/synse/version'.format(path))
+        r = SESSION.get(
+            '{}/synse/version'.format(path),
+            timeout=config.options.get('timeout'))
         if r.ok:
             version = r.json().get('api_version')
         else:
@@ -65,11 +67,12 @@ def make_request(backend, uri):
 
     base = '{0}/synse/{1}/'.format(path, version)
     try:
-        result = SESSION.get(requests.compat.urljoin(base, uri))
+        result = SESSION.get(
+            requests.compat.urljoin(base, uri),
+            timeout=config.options.get('timeout'))
         result.raise_for_status()
-    except HTTPError as ex:
-        logging.error('Error {} {}\n{}'.format(
-            ex.response.status_code, ex.request.url, ex.response.text))
+    except Exception as ex:
+        logging.exception('Request failure')
         raise ex
 
     return result.json()

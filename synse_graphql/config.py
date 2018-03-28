@@ -44,6 +44,13 @@ parser.add(
     default='2.0',
     help='The API version of the Synse instance being connected to.'
 )
+parser.add(
+    '--timeout',
+    env_var='TIMEOUT',
+    type=int,
+    default=1,
+    help='Timeout for backend requests.'
+)
 
 options = None
 

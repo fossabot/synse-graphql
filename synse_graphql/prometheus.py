@@ -2,9 +2,6 @@
 
     Author:  Thomas Rampelberg
     Date:    4/7/2017
-
-    \\//
-     \/apor IO
 """
 
 import logging
@@ -33,7 +30,7 @@ query = '''{
                 ... on AirflowDevice {
                   airflow
                 }
-                ... on DifferentialPressureDevice {
+                ... on PressureDevice {
                   pressure
                 }
                 ... on FanDevice {
@@ -80,7 +77,7 @@ class Device(object):
 
     _buckets = {
         'airflow': [0, _INF],
-        'differential_pressure': [0, _INF],
+        'pressure': [0, _INF],
         'fan': list(range(0, 8500, 500)) + [_INF],
         'humidity': [0, _INF],
         'temperature': list(range(0, 95, 5)) + [_INF],

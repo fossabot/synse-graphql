@@ -129,7 +129,7 @@ class AirflowDevice(DeviceBase):
 
 
 @resolve_fields
-class DifferentialPressureDevice(DeviceBase):
+class PressureDevice(DeviceBase):
     """ Model for a DifferentialPressure type device. """
 
     _resolve_fields = [
