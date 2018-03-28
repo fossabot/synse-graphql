@@ -2,9 +2,6 @@
 
     Author: Thomas Rampelberg
     Date:   2/27/2017
-
-    \\//
-     \/apor IO
 """
 
 import concurrent.futures
@@ -13,7 +10,6 @@ import logging
 
 import requests
 import requests.compat
-from requests.exceptions import HTTPError
 
 from synse_graphql import config
 
