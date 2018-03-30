@@ -3,7 +3,6 @@
     boards {
       devices(device_type:"led") {
         ... on LedDevice {
-          blink
           color
           state
         }

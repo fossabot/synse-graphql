@@ -177,7 +177,6 @@ class LedDevice(DeviceBase):
     """
 
     _resolve_fields = [
-        'blink',
         'color',
         'state',
     ]
@@ -185,7 +184,6 @@ class LedDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    blink = graphene.String(required=True)
     color = graphene.String(required=True)
     state = graphene.String(required=True)
 
