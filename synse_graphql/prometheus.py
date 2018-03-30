@@ -40,7 +40,6 @@ query = '''{
                   humidity
                 }
                 ... on LedDevice {
-                    blink
                     color
                     state
                 }
@@ -138,9 +137,8 @@ class Device(object):
 class LedDevice(Device):
 
     _handlers = {
-        'blink': lambda x: 0 if x == 'steady' else 1,
         'color': lambda x: int(x, 16),
-        'state': lambda x: 0 if x == 'off' else 1,
+        'state': lambda x: ['off', 'on', 'blink'].index(x),
     }
 
     def record(self):

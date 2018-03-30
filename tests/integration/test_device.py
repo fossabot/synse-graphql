@@ -64,7 +64,6 @@ class TestDevice(BaseSchemaTest):
 
     def test_led(self):
         keys = [
-            "blink",
             "color",
             "state"
         ]
