@@ -138,7 +138,7 @@ class LedDevice(Device):
 
     _handlers = {
         'color': lambda x: int(x, 16),
-        'state': lambda x: x,
+        'state': lambda x: ['off', 'on', 'blink'].index(x),
     }
 
     def record(self):
