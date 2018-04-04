@@ -20,4 +20,4 @@ jobs:
       - run:
           name: Run the tests.
           command: |
-            make config-volume build circleci
+            make build circleci
