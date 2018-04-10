@@ -126,6 +126,8 @@ class Device(object):
         for k, v in self._device.items():
             if k in self._filter_keys:
                 continue
+            if v is None:
+                continue
             try:
                 self.get_metric('gauge', k).set(v)
                 self.get_metric('histogram', k).observe(v)
@@ -144,6 +146,9 @@ class LedDevice(Device):
     def record(self):
         for k, v in self._device.items():
             if k in self._filter_keys:
+                continue
+
+            if v is None:
                 continue
             try:
                 self.get_metric('gauge', k).set(self._handlers.get(k)(v))

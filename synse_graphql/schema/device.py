@@ -3,9 +3,6 @@
 
     Author: Thomas Rampelberg
     Date:   2/27/2017
-
-    \\//
-     \/apor IO
 """
 # pylint: disable=old-style-class,no-init
 
@@ -184,8 +181,8 @@ class LedDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    color = graphene.String(required=True)
-    state = graphene.String(required=True)
+    color = graphene.String()
+    state = graphene.String()
 
 
 @resolve_fields
