@@ -24,6 +24,7 @@ markupsafe==1.0           # via jinja2
 prometheus-client==0.1.1
 promise==2.1              # via graphene, graphql-core, graphql-relay
 pytz==2018.3
+pyyaml==3.12
 requests==2.18.4
 rx==1.6.1                 # via graphql-core
 six==1.11.0               # via apscheduler, graphene, graphql-core, graphql-relay, promise

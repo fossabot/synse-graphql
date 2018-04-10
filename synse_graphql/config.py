@@ -9,9 +9,9 @@
 
 import configargparse
 
-parser = configargparse.ArgParser(default_config_files=[
-    '/code/config.yaml'
-])
+parser = configargparse.ArgParser(
+    config_file_parser_class=configargparse.YAMLConfigFileParser,
+    default_config_files=['/code/config.yaml'])
 
 backend_help = 'Name/path combination for the backend to use. ' + \
     'example: "backend;;http://demo.vapor.io:5000"'
@@ -25,7 +25,7 @@ parser.add(
 parser.add(
     '--backend',
     env_var='BACKEND',
-    nargs='+',
+    action='append',
     default=['backend;;http://synse-server:5000'],
     help=backend_help)
 parser.add(
