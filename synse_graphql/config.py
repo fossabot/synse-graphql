@@ -25,7 +25,7 @@ parser.add(
 parser.add(
     '--backend',
     env_var='BACKEND',
-    action='append',
+    nargs='+',
     default=['backend;;http://synse-server:5000'],
     help=backend_help)
 parser.add(
