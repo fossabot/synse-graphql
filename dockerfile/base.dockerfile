@@ -10,4 +10,6 @@ RUN apk add --update --no-cache build-base \
 COPY . /code
 WORKDIR /code
 
+RUN python setup.py install
+
 CMD ["python", "synse_graphql"]
