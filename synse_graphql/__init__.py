@@ -1,15 +1,10 @@
-""" Synse GraphQL module.
+"""Synse GraphQL is a GraphQL API wrapper around Synse Server's HTTP API."""
 
-    Author: Erick Daniszewski
-    Date:   2 Oct 2017
-"""
 
-__title__ = 'synse-graphql'
-__version__ = '2.0.5'
+__title__ = 'synse_graphql'
+__version__ = '2.0.9'
 __description__ = 'Synse GraphQL'
 __author__ = 'Vapor IO'
 __author_email__ = 'vapor@vapor.io'
-__url__ = ''
-
-if __name__ == '__main__':
-    print(__version__)
+__url__ = 'https://github.com/vapor-ware/synse-graphql'
+__license__ = 'GNU General Public License v2.0'
