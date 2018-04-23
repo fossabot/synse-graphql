@@ -1,5 +1,6 @@
 FROM vaporio/synse-graphql
-MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
+
+LABEL maintainer="vapor@vapor.io"
 
 RUN apk add --no-cache \
   build-base \

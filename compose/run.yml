@@ -1,4 +1,4 @@
 version: "3"
 services:
   graphql:
-    command: python runserver.py
+    command: python synse_graphql

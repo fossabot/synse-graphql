@@ -25,7 +25,10 @@ class BaseSchemaTest(testtools.TestCase):
 
     def setUp(self):
         super(BaseSchemaTest, self).setUp()
-        setup_logging('logging-test.json')
+        setup_logging({
+            'version': 1,
+            'disable_existing_loggers': False
+        })
 
         if synse_graphql.config.options is None:
             synse_graphql.config.parse_args([

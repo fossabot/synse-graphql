@@ -1,5 +1,6 @@
 FROM python:3.6-alpine
-MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
+
+LABEL maintainer="vapor@vapor.io"
 
 COPY requirements.txt /tmp/requirements.txt
 RUN apk add --update --no-cache build-base \
@@ -9,4 +10,6 @@ RUN apk add --update --no-cache build-base \
 COPY . /code
 WORKDIR /code
 
-CMD ["python", "runserver.py"]
+RUN python setup.py install
+
+CMD ["python", "synse_graphql"]
