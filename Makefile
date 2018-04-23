@@ -7,6 +7,10 @@ PKG_NAME := $(shell python -c "import synse_graphql ; print(synse_graphql.__titl
 PKG_VER := $(shell python -c "import synse_graphql ; print(synse_graphql.__version__)")
 export GIT_VER := $(shell /bin/sh -c "git log --pretty=format:'%h' -n 1 || echo 'none'")
 
+
+HAS_PIP_COMPILE := $(shell which pip-compile)
+
+
 .PHONY: build
 build:  ## Build the docker image for Synse GraphQL locally
 	docker build -f dockerfile/base.dockerfile \
@@ -50,6 +54,13 @@ down:
 logs:
 	docker-compose -f compose/base.yml -f compose/dev.yml logs
 
+
+.PHONY: update-deps
+update-deps:  ## Update the frozen pip dependencies (requirements.txt)
+ifndef HAS_PIP_COMPILE
+	pip install pip-tools
+endif
+	pip-compile --output-file requirements.txt setup.py
 
 .PHONY: version
 version: ## Print the version of Synse GraphQL
