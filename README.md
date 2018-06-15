@@ -19,7 +19,7 @@ Note: the default configuration uses the embedded synse-server and emulator. If 
 # Usage
 
 ```bash
-docker run -it --rm vaporio/synse-graphql python runserver.py --help
+docker run -it --rm vaporio/synse-graphql python synse_graphql --help
 ```
 
 - To specify which synse-server to collect data from, set the BACKEND environment variable to the url of synse-server.
@@ -31,7 +31,7 @@ docker run -it --rm vaporio/synse-graphql python runserver.py --help
 
 ```bash
 make build dev
-python runserver.py
+python synse_graphql
 ```
 
 - From outside the container (or inside it), you can run `curl localhost:5001`
@@ -40,7 +40,7 @@ python runserver.py
 
 ```bash
 make build dev
-python runserver.py &
+python synse_graphql &
 ./query.py --list
 ./query.py test_racks
 ./query.py --help

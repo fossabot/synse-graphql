@@ -198,3 +198,93 @@ class TemperatureDevice(DeviceBase):
         interfaces = (DeviceInterface, )
 
     temperature = graphene.Float()
+
+
+@resolve_fields
+class IdentityDevice(DeviceBase):
+    """ Model for an Identity type device.
+    """
+
+    _resolve_fields = [
+        'identity'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    identity = graphene.String()
+
+
+@resolve_fields
+class StatusDevice(DeviceBase):
+    """ Model for a Status type device.
+    """
+
+    _resolve_fields = [
+        'status'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    status = graphene.String()
+
+
+@resolve_fields
+class FrequencyDevice(DeviceBase):
+    """ Model for a Frequency type device.
+    """
+
+    _resolve_fields = [
+        'frequency'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    frequency = graphene.Float()
+
+
+@resolve_fields
+class VoltageDevice(DeviceBase):
+    """ Model for a Voltage type device.
+    """
+
+    _resolve_fields = [
+        'voltage'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    voltage = graphene.Float()
+
+
+@resolve_fields
+class CurrentDevice(DeviceBase):
+    """ Model for a Current type device.
+    """
+
+    _resolve_fields = [
+        'current'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    current = graphene.Float()
+
+
+@resolve_fields
+class PowerDevice(DeviceBase):
+    """ Model for a Power type device.
+    """
+
+    _resolve_fields = [
+        'power'
+    ]
+
+    class Meta:
+        interfaces = (DeviceInterface, )
+
+    power = graphene.Float()
