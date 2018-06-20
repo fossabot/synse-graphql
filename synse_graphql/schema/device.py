@@ -122,7 +122,7 @@ class AirflowDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    airflow = graphene.Float(required=True)
+    airflow = graphene.Float()
 
 
 @resolve_fields
@@ -136,7 +136,7 @@ class PressureDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    pressure = graphene.Float(required=True)
+    pressure = graphene.Float()
 
 
 @resolve_fields
@@ -151,7 +151,7 @@ class FanDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    fan_speed = graphene.Int(required=True)
+    fan_speed = graphene.Int()
 
 
 @resolve_fields
@@ -165,7 +165,7 @@ class HumidityDevice(DeviceBase):
     class Meta:
         interfaces = (DeviceInterface, )
 
-    humidity = graphene.Float(required=True)
+    humidity = graphene.Float()
 
 
 @resolve_fields
