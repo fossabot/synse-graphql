@@ -46,6 +46,18 @@ query = '''{
                 ... on TemperatureDevice {
                     temperature
                 }
+                ... on FrequencyDevice {
+                    frequency
+                }
+                ... on VoltageDevice {
+                    voltage
+                }
+                ... on CurrentDevice {
+                    current
+                }
+                ... on PowerDevice {
+                    power
+                }
             }
         }
     }
@@ -80,6 +92,10 @@ class Device(object):
         'fan': list(range(0, 8500, 500)) + [_INF],
         'humidity': [0, _INF],
         'temperature': list(range(0, 95, 5)) + [_INF],
+        'frequency': [0, _INF],
+        'voltage': [0, _INF],
+        'current': [0, _INF],
+        'power': [0, _INF],
     }
 
     def __init__(self, rack, board, device):

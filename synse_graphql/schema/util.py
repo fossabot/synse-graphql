@@ -27,7 +27,11 @@ def scan():
         tasks = [executor.submit(lambda: (b, make_request(b, 'scan')))
                  for b in config.options.get('backend').keys()]
         for future in concurrent.futures.as_completed(tasks):
-            yield future.result()
+            try:
+                scan_result = future.result()
+                yield scan_result
+            except Exception as ex:
+                logger.exception(ex)
 
 
 def make_request(backend, uri):
@@ -68,8 +72,9 @@ def make_request(backend, uri):
             timeout=config.options.get('timeout'))
         result.raise_for_status()
     except Exception as ex:
-        logging.exception('Request failure')
-        raise ex
+        logging.exception('Request failure[{} {}] : {}'.format(
+            backend, uri, ex))
+        return ex
 
     return result.json()
 
