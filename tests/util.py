@@ -30,11 +30,10 @@ class BaseSchemaTest(testtools.TestCase):
             'disable_existing_loggers': False
         })
 
-        if synse_graphql.config.options is None:
-            synse_graphql.config.parse_args([
-                '--backend',
-                'backend;;http://synse-server:5000'
-            ])
+        synse_graphql.config.parse_args([
+            '--backend',
+            'backend;;http://synse-server:5000'
+        ])
         self.client = graphene.test.Client(synse_graphql.schema.create())
 
     def get_query(self, name):

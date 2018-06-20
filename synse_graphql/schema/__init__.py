@@ -69,5 +69,5 @@ class Cluster(graphene.ObjectType):
                 Rack.build(self, backend, rack)
                 for rack in util.arg_filter(
                     id, lambda x: x.get('id') == id, data.get('racks'))
-            ] for backend, data in util.scan()]
+            ] for backend, data in util.scan() if type(data) is dict]
         )
