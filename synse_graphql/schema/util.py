@@ -43,7 +43,6 @@ def make_request(backend, uri):
     Returns:
         the JSON loaded result from the request.
     """
-    version = config.options.get('version')
     path = config.options.get('backend').get(backend)
     bundle_path = config.options.get('cert_bundle')
     if bundle_path:
@@ -53,17 +52,15 @@ def make_request(backend, uri):
     if ca_path:
         SESSION.verify = ca_path
 
-    # if the version is unspecified, we'll have to get the version
-    # from the synse instance.
-    if version is None:
-        r = SESSION.get(
-            '{}/synse/version'.format(path),
-            timeout=config.options.get('timeout'))
-        if r.ok:
-            version = r.json().get('api_version')
-        else:
-            logger.warning('Unable to get API version of Synse.')
-            r.raise_for_status()
+    # get the version from the synse instance.
+    r = SESSION.get(
+        '{}/synse/version'.format(path),
+        timeout=config.options.get('timeout'))
+    if r.ok:
+        version = r.json().get('api_version')
+    else:
+        logger.exception('Unable to get API version of Synse.')
+        r.raise_for_status()
 
     base = '{0}/synse/{1}/'.format(path, version)
     try:
@@ -74,7 +71,7 @@ def make_request(backend, uri):
     except Exception as ex:
         logging.exception('Request failure[{} {}] : {}'.format(
             backend, uri, ex))
-        return ex
+        raise ex
 
     return result.json()
 

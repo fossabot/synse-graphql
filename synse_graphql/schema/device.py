@@ -102,12 +102,13 @@ class DeviceBase(graphene.ObjectType):
         Args:
             field: the field to extract from the request response.
         """
-        result = self._resolve_detail().get('data').get(field).get('value')
-        if result == 'null':
-            raise Exception('Received null value - {}:{} {}'.format(
-                self.device_type,
-                field,
-                self._url))
+        data = self._resolve_detail().get('data')
+        for reading in data:
+            try:
+                result = reading.get('value')
+            except AttributeError as ex:
+                return ex
+
         return result
 
 

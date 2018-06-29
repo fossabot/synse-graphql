@@ -47,7 +47,7 @@ parser.add(
 # Server configuration
 parser.add(
     '--server',
-    default='localhost:5001',
+    default='localhost:5050',
     help='Server to send the query to.')
 
 # Query location
