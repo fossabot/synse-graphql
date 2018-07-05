@@ -44,6 +44,12 @@ jobs:
       - run:
           name: Run Tests
           command: make build circleci
+      # TODO: There should be some additions to the CI flow, namely:
+      #   - the repo should have unit tests
+      #   - the integration tests run here could be simplified
+      #   - the repo should have linting
+      #   - building and testing should be separate steps
+      # See the Synse Server CI config file for an example.
 
   # publish-edge
   #
@@ -189,29 +195,3 @@ workflows:
           <<: *tag-filters
           requires:
             - release
-
-
-#
-#version: 2
-#jobs:
-#  build:
-#    docker:
-#      - image: vaporio/build-base:7582146
-#    working_directory: ~/code
-#
-#    steps:
-#      - checkout
-#
-#      - setup_remote_docker:
-#          reusable: true
-#          exclusive: false
-#
-#      - run:
-#          name: Docker Private Images (temporary)
-#          command: |
-#            docker login -u $DOCKER_USER -p $DOCKER_PS
-#
-#      - run:
-#          name: Run the tests.
-#          command: |
-#            make build circleci
