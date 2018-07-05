@@ -13,22 +13,11 @@ import graphene
 from . import util
 
 
-def resolve_fields(cls):
-    """Class decorator to set the _resolve_fields member values
-    as methods onto the class.
-
-    Args:
-        cls: the class being decorated.
-
-    Returns:
-        the class with new attributes assigned.
+class DeviceReading(graphene.ObjectType):
+    """ Model for data returned from Device readings
     """
-    for field in cls._resolve_fields:
-        setattr(
-            cls,
-            'resolve_{0}'.format(field),
-            functools.partialmethod(cls._request_data, field))
-    return cls
+    reading_type = graphene.String(required=True)
+    value = graphene.String(required=True)
 
 
 class DeviceInterface(graphene.Interface):
@@ -38,15 +27,18 @@ class DeviceInterface(graphene.Interface):
     id = graphene.String(required=True)
     info = graphene.String(required=True)
     device_type = graphene.String(required=True)
+    readings = graphene.List(DeviceReading)
 
 
-class DeviceBase(graphene.ObjectType):
-    """ Base class for all devices.
+class Device(graphene.ObjectType):
+    """ Model for Devices, which contain DeviceReadings
     """
 
     _data = None
     _parent = None
-    _root = None
+
+    class Meta:
+        interfaces = (DeviceInterface, )
 
     @classmethod
     def build(cls, parent, data):
@@ -60,11 +52,7 @@ class DeviceBase(graphene.ObjectType):
             a new instance of the built device.
         """
         data['device_type'] = data.pop('type')
-        return globals().get(cls.__name__)(
-            _parent=parent,
-            _data=data,
-            **data,
-        )
+        return Device(_parent=parent, _data=data, **data)
 
     @property
     def backend(self):
@@ -94,198 +82,18 @@ class DeviceBase(graphene.ObjectType):
     def _resolve_detail(self):
         """ Make a read request for the given device.
         """
-        return util.make_request(self.backend, self._url)
+        try:
+            return util.make_request(self.backend, self._url).get('data')
+        except Exception as e:
+            pass
 
-    def _request_data(self, field, *_):
-        """ Get the specified field from a device request response.
-
-        Args:
-            field: the field to extract from the request response.
+    def resolve_readings(self, *_):
+        """ Build DeviceReading from _resolve_detail JSON
         """
-        data = self._resolve_detail().get('data')
-        for reading in data:
-            try:
-                result = reading.get('value')
-            except AttributeError as ex:
-                return ex
-
-        return result
-
-
-@resolve_fields
-class AirflowDevice(DeviceBase):
-    """ Model for a Airflow type device. """
-
-    _resolve_fields = [
-        'airflow'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    airflow = graphene.Float()
-
-
-@resolve_fields
-class PressureDevice(DeviceBase):
-    """ Model for a DifferentialPressure type device. """
-
-    _resolve_fields = [
-        'pressure'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    pressure = graphene.Float()
-
-
-@resolve_fields
-class FanDevice(DeviceBase):
-    """ Model for a fan type device.
-    """
-
-    _resolve_fields = [
-        'fan_speed',
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    fan_speed = graphene.Int()
-
-
-@resolve_fields
-class HumidityDevice(DeviceBase):
-    """ Model for a Humidity type device. """
-
-    _resolve_fields = [
-        'humidity'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    humidity = graphene.Float()
-
-
-@resolve_fields
-class LedDevice(DeviceBase):
-    """ Model for an LED type device.
-    """
-
-    _resolve_fields = [
-        'color',
-        'state',
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    color = graphene.String()
-    state = graphene.String()
-
-
-@resolve_fields
-class TemperatureDevice(DeviceBase):
-    """ Model for a temperature type device.
-    """
-
-    _resolve_fields = [
-        'temperature'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    temperature = graphene.Float()
-
-
-@resolve_fields
-class IdentityDevice(DeviceBase):
-    """ Model for an Identity type device.
-    """
-
-    _resolve_fields = [
-        'identity'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    identity = graphene.String()
-
-
-@resolve_fields
-class StatusDevice(DeviceBase):
-    """ Model for a Status type device.
-    """
-
-    _resolve_fields = [
-        'status'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    status = graphene.String()
-
-
-@resolve_fields
-class FrequencyDevice(DeviceBase):
-    """ Model for a Frequency type device.
-    """
-
-    _resolve_fields = [
-        'frequency'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    frequency = graphene.Float()
-
-
-@resolve_fields
-class VoltageDevice(DeviceBase):
-    """ Model for a Voltage type device.
-    """
-
-    _resolve_fields = [
-        'voltage'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    voltage = graphene.Float()
-
-
-@resolve_fields
-class CurrentDevice(DeviceBase):
-    """ Model for a Current type device.
-    """
-
-    _resolve_fields = [
-        'current'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    current = graphene.Float()
-
-
-@resolve_fields
-class PowerDevice(DeviceBase):
-    """ Model for a Power type device.
-    """
-
-    _resolve_fields = [
-        'power'
-    ]
-
-    class Meta:
-        interfaces = (DeviceInterface, )
-
-    power = graphene.Float()
+        data = self._resolve_detail()
+        if data:
+            return [
+                DeviceReading(
+                    reading_type=d.get('type'), value=str(d.get('value')))
+                for d in data if d is not None
+            ]

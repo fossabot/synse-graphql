@@ -1,7 +1,9 @@
-{
+query GetDeviceType($deviceType: String!) {
   racks {
+    id
     boards {
-      devices {
+      id
+      devices (device_type: $deviceType) {
         id
         device_type
         readings {

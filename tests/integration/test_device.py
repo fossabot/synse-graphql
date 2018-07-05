@@ -14,9 +14,16 @@ from ..util import BaseSchemaTest
 
 class TestDevice(BaseSchemaTest):
 
-    def get_devices(self, query):
-        return self.run_query(query).get('data').get(
-            "racks")[0].get("boards")[0].get("devices")
+    def get_devices(self, query, params=None):
+        return self.run_query(query, params).get('data').get(
+            'racks')[0].get('boards')[0].get('devices')
+
+    def get_readings(self, query, params=None):
+        return [reading for device in self.get_devices(query, params) for
+                reading in device.get('readings')]
+
+    def _params(self, device_type):
+        return {'deviceType': device_type}
 
     def check_keys(self, data, keys):
         self.assertItemsEqual(data.keys(), keys.keys())
@@ -26,53 +33,54 @@ class TestDevice(BaseSchemaTest):
 
     def test_basic_query(self):
         keys = {
-            "id": {},
-            "device_type": {},
+            'id': {},
+            'device_type': {},
+            'readings': {},
         }
 
-        self.check_keys(self.get_devices("test_devices")[0], keys)
+        self.check_keys(self.get_devices('test_devices')[0], keys)
 
     def test_type_arg(self):
-        self.assertEqual(len(self.get_devices("test_device_type_arg")), 5)
+        self.assertEqual(len(self.get_devices('test_device_type_arg')), 5)
 
     def test_airflow(self):
-        keys = [
-            "airflow"
-        ]
+        reading_type = 'airflow'
         self.assertItemsEqual(
-            self.get_devices("test_airflow_device")[0].keys(), keys)
+            self.get_readings(
+                'test_device_type', params=self._params('airflow'))[0].get(
+                'reading_type'), reading_type)
 
     def test_pressure(self):
-        keys = [
-            "pressure"
-        ]
+        reading_type = 'pressure'
         self.assertItemsEqual(
-            self.get_devices(
-                "test_pressure_device")[0].keys(), keys)
+            self.get_readings(
+                'test_device_type', params=self._params('pressure'))[0].get(
+                'reading_type'), reading_type)
 
     def test_humidity(self):
-        keys = [
-            "humidity"
-        ]
+        reading_type = 'humidity'
         self.assertItemsEqual(
-            self.get_devices("test_humidity_device")[0].keys(), keys)
+            self.get_readings(
+                'test_device_type', params=self._params('humidity'))[0].get(
+                'reading_type'), reading_type)
 
     def test_temperature(self):
-        keys = ["temperature"]
+        reading_type = 'temperature'
         self.assertItemsEqual(
-            self.get_devices("test_temp_device")[0].keys(), keys)
+            self.get_readings(
+                'test_device_type', params=self._params(
+                    'temperature'))[0].get('reading_type'), reading_type)
 
     def test_led(self):
-        keys = [
-            "color",
-            "state"
-        ]
+        reading_type = {'color', 'state'}
         self.assertItemsEqual(
-            self.get_devices("test_led_device")[0].keys(), keys)
+            {r.get('reading_type') for r in self.get_readings(
+                'test_device_type', params=self._params('led'))},
+            reading_type)
 
     def test_fan(self):
-        keys = [
-            "fan_speed"
-        ]
+        reading_type = 'speed'
         self.assertItemsEqual(
-            self.get_devices("test_fan_device")[0].keys(), keys)
+            self.get_readings(
+                'test_device_type', params=self._params('fan'))[0].get(
+                'reading_type'), reading_type)

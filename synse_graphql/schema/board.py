@@ -5,9 +5,9 @@
 """
 
 import graphene
-import inflection
 
-from . import device, util
+from . import util
+from .device import Device, DeviceInterface
 
 
 class Board(graphene.ObjectType):
@@ -19,7 +19,7 @@ class Board(graphene.ObjectType):
 
     id = graphene.String(required=True)
     devices = graphene.List(
-        device.DeviceInterface,
+        DeviceInterface,
         required=True,
         device_type=graphene.String()
     )
@@ -37,21 +37,6 @@ class Board(graphene.ObjectType):
         """
         return Board(_data=data, _parent=parent, **data)
 
-    @staticmethod
-    def device_class(device_type):
-        """Get the device class for the given device type.
-
-        Args:
-            device_type (str): the name of the device type to get the
-                device class for.
-
-        Returns:
-            the device class, as defined in the `devices` module.
-        """
-        return getattr(
-            device,
-            '{0}Device'.format(inflection.camelize(device_type)))
-
     def resolve_devices(self, info, device_type=None):
         """Resolve all associated devices into their Device model.
 
@@ -62,7 +47,7 @@ class Board(graphene.ObjectType):
             list[Device]: a list of all resolved devices associated with this
                 board.
         """
-        return [self.device_class(d.get('type')).build(self, d)
+        return [Device.build(self, d)
                 for d in util.arg_filter(
                     device_type,
                     lambda x: x.get('type') == device_type,

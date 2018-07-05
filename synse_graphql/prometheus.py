@@ -6,6 +6,7 @@
 
 import logging
 from datetime import datetime
+from string import punctuation
 
 import graphene.test
 import graphql.execution.executors.gevent
@@ -27,36 +28,9 @@ query = '''{
                 id
                 info
                 device_type
-                ... on AirflowDevice {
-                  airflow
-                }
-                ... on PressureDevice {
-                  pressure
-                }
-                ... on FanDevice {
-                    fan_speed
-                }
-                ... on HumidityDevice {
-                  humidity
-                }
-                ... on LedDevice {
-                    color
-                    state
-                }
-                ... on TemperatureDevice {
-                    temperature
-                }
-                ... on FrequencyDevice {
-                    frequency
-                }
-                ... on VoltageDevice {
-                    voltage
-                }
-                ... on CurrentDevice {
-                    current
-                }
-                ... on PowerDevice {
-                    power
+                readings {
+                    reading_type
+                    value
                 }
             }
         }
@@ -80,12 +54,6 @@ class Device(object):
         'device_type'
     ]
 
-    _filter_keys = [
-        'id',
-        'info',
-        'device_type'
-    ]
-
     _buckets = {
         'airflow': [0, _INF],
         'pressure': [0, _INF],
@@ -102,6 +70,13 @@ class Device(object):
         self._rack = rack
         self._board = board
         self._device = device
+        if self._device.get('readings'):
+            self._readings = [
+                (r.get('reading_type'), r.get('value'))
+                for r in self._device.get('readings')
+            ]
+        else:
+            self._readings = None
 
     @property
     def type(self):
@@ -119,7 +94,9 @@ class Device(object):
         ]
 
     def name(self, _type, param):
-        return 'device_{0}_{1}_{2}'.format(self.type, _type, param)
+        return 'device_{}'.format('_'.join([
+            ''.join(char for char in label if char not in punctuation)
+            for label in [self.type, _type, param]]))
 
     def histogram(self, name):
         return prometheus_client.Histogram(
@@ -139,17 +116,23 @@ class Device(object):
         return _metrics.get(_type).get(name).labels(*self.labels)
 
     def record(self):
-        for k, v in self._device.items():
-            if k in self._filter_keys:
-                continue
-            if v is None:
-                continue
+        if not self._readings:
+            return
+        for r in self._readings:
             try:
-                self.get_metric('gauge', k).set(v)
-                self.get_metric('histogram', k).observe(v)
+                float(r[1])
+            except ValueError:
+                logging.warning('Omitting non-numeric metric [{} {}]'.format(
+                    r[0], r[1]))
+                continue
+
+            try:
+                _type, _value = r
+                self.get_metric('gauge', _type).set(float(_value))
+                self.get_metric('histogram', _type).observe(float(_value))
             except Exception as ex:
                 logging.exception(
-                    'failed to log metric: {0}'.format(self.type))
+                    'failed to log metric [{0}] : {1}'.format(self.type, ex))
 
 
 class LedDevice(Device):
@@ -160,17 +143,16 @@ class LedDevice(Device):
     }
 
     def record(self):
-        for k, v in self._device.items():
-            if k in self._filter_keys:
-                continue
-
-            if v is None:
-                continue
+        if not self._readings:
+            return
+        for r in self._readings:
             try:
-                self.get_metric('gauge', k).set(self._handlers.get(k)(v))
+                _type, _value = r
+                self.get_metric('gauge', _type).set(
+                    self._handlers.get(_type)(_value))
             except Exception as ex:
                 logging.exception(
-                    'failed to log metric: {0}'.format(self.type))
+                    'failed to log metric [{0}] : {1}'.format(self.type, ex))
 
 
 summary = prometheus_client.Summary('device_refresh_seconds', '')
@@ -188,11 +170,11 @@ def get():
         executor=graphql.execution.executors.gevent.GeventExecutor())
 
     for error in result.get('errors', []):
-        logging.exception('Query error', exc_info=error)
+        logging.exception('Query error in Prometheus export ', exc_info=error)
         if hasattr(error, 'message'):
             logging.debug(error.message)
 
-        logging.error('Query failed')
+        logging.error('Prometheus export query failed')
         return
 
     for rack in result.get('data').get('racks'):

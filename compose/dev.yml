@@ -12,7 +12,7 @@ services:
 
   synse-server:
     container_name: synse-server
-    image: vaporio/synse-server:2.1.0
+    image: vaporio/synse-server
     restart: always
     ports:
       - 5000:5000
@@ -36,18 +36,12 @@ services:
 
   synse-server-2:
     container_name: synse-server-2
-    image: vaporio/synse-server:2.1.0
+    image: vaporio/synse-server
     restart: always
     ports:
       - 5003:5000
     environment:
       SYNSE_LOGGING: debug
-      SYNSE_PLUGIN_TCP: test-plugin:5002
+      SYNSE_PLUGIN_TCP: emulator-plugin:5001
     links:
-      - test-plugin
-
-  test-plugin:
-    container_name: test-plugin
-    image: vaporio/test-plugin
-    expose:
-      - 5002
+      - emulator-plugin

@@ -12,17 +12,9 @@ import itertools
 
 import graphene
 
-from . import device, util
+from . import util
+from .device import Device
 from .rack import Rack
-
-
-def get_device_types():
-    """Get the device types that exist in the `device` module.
-
-    Returns:
-        list: a list of the supported device types.
-    """
-    return [getattr(device, x) for x in dir(device) if x.endswith('Device')]
 
 
 def create():
@@ -34,7 +26,7 @@ def create():
     return graphene.Schema(
         query=Cluster,
         auto_camelcase=False,
-        types=get_device_types()
+        types=[Device, ]
     )
 
 
