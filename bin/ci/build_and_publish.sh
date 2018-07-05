@@ -80,9 +80,7 @@ echo "All tags for ${IMAGE_NAME}: ${tags[@]}"
 # Build
 #
 # Now, we build the image and tag it with the tags we collected above.
-# How the image is built is up to the repo. It is recommended that a
-# single image is built with a 'tmp' tag first, then the tags applied
-# afterwards.
+# How the image is built is up to the repo.
 #
 # Performing a single build will make it easier for images that take
 # build-time arguments that may cause cache invalidation across all
@@ -90,11 +88,11 @@ echo "All tags for ${IMAGE_NAME}: ${tags[@]}"
 #
 
 # Build the temp image first
-docker build -f Dockerfile -t ${IMAGE_NAME}:tmp .
+make build
 
 # Apply all of our tags to the image
 for tag in "${tags[@]}"; do
-    docker tag ${IMAGE_NAME}:tmp ${IMAGE_NAME}:${tag}
+    docker tag ${IMAGE_NAME}:local ${IMAGE_NAME}:${tag}
 done
 
 
