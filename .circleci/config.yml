@@ -39,6 +39,8 @@ jobs:
       - restore_cache:
           keys:
             - v1-test-{{ checksum "requirements.txt" }}-{{ checksum "tox.ini" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Run Tests
           command: make build circleci
