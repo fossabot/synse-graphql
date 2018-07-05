@@ -4,7 +4,6 @@ services:
     container_name: synse-server
     image: vaporio/synse-server
     restart: always
-    command: enable-emulator
     ports:
       - 5000:5000
     environment:
