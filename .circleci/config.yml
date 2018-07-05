@@ -114,6 +114,7 @@ jobs:
           name: Install Dependencies
           command: |
             sudo chown -R circleci:circleci /usr/local/bin
+            sudo chown -R circleci:circleci /usr/local/include
             sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
             pip install -r requirements.txt
       - run:
