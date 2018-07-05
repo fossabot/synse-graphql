@@ -6,7 +6,7 @@ synse-graphql provides a GraphQL API that enables complex querying of your data 
 make run
 ```
 
-At this point there is an interactive terminal running that you can do interactive queries with. Send your browser to `http://localhost:5001/graphql` and play around. Click the `Docs` tab on the right for the schema or go to `tests/queries/` to look at some example queries.
+At this point there is an interactive terminal running that you can do interactive queries with. Send your browser to `http://localhost:5050/graphql` and play around. Click the `Docs` tab on the right for the schema or go to `tests/queries/` to look at some example queries.
 
 To stop it, you can run:
 
@@ -34,7 +34,7 @@ make build dev
 python synse_graphql
 ```
 
-- From outside the container (or inside it), you can run `curl localhost:5001`
+- From outside the container (or inside it), you can run `curl localhost:5050`
 
 ## Use the query tool
 

@@ -2,19 +2,20 @@ version: "3"
 services:
   synse-server:
     container_name: synse-server
-    image: vaporio/synse-server:2.0.0
+    image: vaporio/synse-server
     restart: always
     command: enable-emulator
     ports:
       - 5000:5000
     environment:
-      - SYNSE_LOGGING=debug
-  synse-server2:
+      SYNSE_LOGGING: debug
+
+  synse-server-2:
     container_name: synse-server-2
-    image: vaporio/synse-server:2.0.0
+    image: vaporio/synse-server
     restart: always
     command: enable-emulator
     ports:
-      - 5002:5000
+      - 5003:5000
     environment:
-      - SYNSE_LOGGING=debug
+      SYNSE_LOGGING: debug

@@ -20,7 +20,7 @@ parser.add('-c', '--my-config', is_config_file=True, help='config file path')
 parser.add(
     '--port',
     env_var='PORT',
-    default=5001,
+    default=5050,
     help='Port to listen on.')
 parser.add(
     '--backend',
@@ -37,13 +37,6 @@ parser.add(
     '--ssl-verify',
     env_var='SSL_VERIFY',
     help='CA certificate to use for verification.')
-parser.add(
-    '--version',
-    choices=['2.0'],
-    env_var='BACKEND_VERSION',
-    default='2.0',
-    help='The API version of the Synse instance being connected to.'
-)
 parser.add(
     '--timeout',
     env_var='TIMEOUT',

@@ -5,7 +5,6 @@
 """
 
 import concurrent.futures
-import functools
 import logging
 
 import requests
@@ -22,6 +21,7 @@ def scan():
     """Scan every backend and return the full device list.
 
     Returns:
+        dict: Synse server scan results
     """
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         tasks = [executor.submit(lambda: (b, make_request(b, 'scan')))
@@ -38,12 +38,12 @@ def make_request(backend, uri):
     """Make a request to the provided URI.
 
     Args:
+        backend (str): backend to make the request for.
         uri (str): the uri to make the request for.
 
     Returns:
         the JSON loaded result from the request.
     """
-    version = config.options.get('version')
     path = config.options.get('backend').get(backend)
     bundle_path = config.options.get('cert_bundle')
     if bundle_path:
@@ -53,17 +53,16 @@ def make_request(backend, uri):
     if ca_path:
         SESSION.verify = ca_path
 
-    # if the version is unspecified, we'll have to get the version
-    # from the synse instance.
-    if version is None:
+    try:
         r = SESSION.get(
             '{}/synse/version'.format(path),
             timeout=config.options.get('timeout'))
-        if r.ok:
-            version = r.json().get('api_version')
-        else:
-            logger.warning('Unable to get API version of Synse.')
-            r.raise_for_status()
+        r.raise_for_status()
+        version = r.json().get('api_version')
+    except Exception as ex:
+        logging.exception('Request failure [{} version] : {}'.format(
+            backend, ex))
+        raise ex
 
     base = '{0}/synse/{1}/'.format(path, version)
     try:
@@ -72,9 +71,9 @@ def make_request(backend, uri):
             timeout=config.options.get('timeout'))
         result.raise_for_status()
     except Exception as ex:
-        logging.exception('Request failure[{} {}] : {}'.format(
+        logging.exception('Request failure [{} {}] : {}'.format(
             backend, uri, ex))
-        return ex
+        raise ex
 
     return result.json()
 
@@ -86,20 +85,6 @@ def get_asset(self, asset, *args, **kwargs):  # pylint: disable=unused-argument
     are using this method as resolve.
     """
     return self._request_assets().get(asset, '')
-
-
-# FIXME -- unused?
-def resolve_assets(cls):
-    """Decorator to dynamically resolve fields.
-
-    Add resolve methods for everything in _assets.
-    """
-    for asset in cls._assets:
-        setattr(
-            cls,
-            'resolve_{0}'.format(asset),
-            functools.partialmethod(get_asset, asset))
-    return cls
 
 
 def arg_filter(val, fn, lst):

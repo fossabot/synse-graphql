@@ -57,7 +57,8 @@ class BaseSchemaTest(testtools.TestCase):
         self.assertFalse(result['errors'])
         self.output(result)
 
-    def run_query(self, name):
-        result = self.client.execute(self.get_query(name))
+    def run_query(self, name, params=None):
+        result = self.client.execute(
+            self.get_query(name), variable_values=params)
         self.assertQuery(result)
         return result
