@@ -14,34 +14,18 @@ services:
     container_name: synse-server
     image: vaporio/synse-server
     restart: always
+    command: enable-emulator
     ports:
       - 5000:5000
     environment:
       SYNSE_LOGGING: debug
-      SYNSE_PLUGIN_TCP: emulator-plugin:5001
-    links:
-      - emulator-plugin
-
-  emulator-plugin:
-    container_name: emulator-plugin
-    image: vaporio/emulator-plugin
-    ports:
-      - 5001:5001
-    volumes:
-      - ../config/emulator/tcp:/tmp/config/
-      - ../config/emulator/devices:/tmp/devices/
-    environment:
-      PLUGIN_CONFIG: /tmp/config
-      PLUGIN_DEVICE_PATH: /tmp/devices
 
   synse-server-2:
     container_name: synse-server-2
     image: vaporio/synse-server
     restart: always
+    command: enable-emulator
     ports:
       - 5003:5000
     environment:
       SYNSE_LOGGING: debug
-      SYNSE_PLUGIN_TCP: emulator-plugin:5001
-    links:
-      - emulator-plugin

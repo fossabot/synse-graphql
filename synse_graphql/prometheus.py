@@ -44,6 +44,8 @@ _metrics = {
 
 
 class Device(object):
+    """ Generates prometheus metrics from GraphQL responses
+    """
 
     default_labels = [
         'backend_name',
@@ -94,6 +96,8 @@ class Device(object):
         ]
 
     def name(self, _type, param):
+        """ Construct prometheus metric label from sanitized device attributes
+        """
         return 'device_{}'.format('_'.join([
             ''.join(char for char in label if char not in punctuation)
             for label in [self.type, _type, param]]))
@@ -116,6 +120,8 @@ class Device(object):
         return _metrics.get(_type).get(name).labels(*self.labels)
 
     def record(self):
+        """ Verify reading values are numeric and create metrics
+        """
         if not self._readings:
             return
         for r in self._readings:
@@ -136,6 +142,8 @@ class Device(object):
 
 
 class LedDevice(Device):
+    """ Handler for LED device_type
+    """
 
     _handlers = {
         'color': lambda x: int(x, 16),
@@ -143,6 +151,8 @@ class LedDevice(Device):
     }
 
     def record(self):
+        """ Converts LED device readings into numeric values via _handlers
+        """
         if not self._readings:
             return
         for r in self._readings:
