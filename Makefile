@@ -10,8 +10,6 @@ GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
 GIT_TAG    ?= $(shell git describe --tags 2> /dev/null || true)
 BUILD_DATE := $(shell date -u +%Y-%m-%dT%T 2> /dev/null)
 
-#export GIT_VER := $(shell /bin/sh -c "git log --pretty=format:'%h' -n 1 || echo 'none'")
-
 HAS_PY36        := $(shell which python3.6 || python -V 2>&1 | grep 3.6 || python3 -V 2>&1 | grep 3.6)
 HAS_PIP_COMPILE := $(shell which pip-compile)
 
