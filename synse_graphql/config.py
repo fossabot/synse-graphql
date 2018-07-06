@@ -53,6 +53,6 @@ def parse_args(opts=None):
     options = vars(parser.parse_args(opts))
 
     options['backend'] = {
-        b[0]: b[1] for b in
+        b[0]: {'host': b[1]} for b in
         [v.split(';;') for v in options.get('backend')]
     }
