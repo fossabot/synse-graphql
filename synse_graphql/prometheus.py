@@ -135,7 +135,8 @@ class Device(object):
             try:
                 _type, _value = r
                 self.get_metric('gauge', _type).set(float(_value))
-                self.get_metric('histogram', _type).observe(float(_value))
+                if self._buckets.get(_type):
+                    self.get_metric('histogram', _type).observe(float(_value))
             except Exception as ex:
                 logging.exception(
                     'failed to log metric [{0}] : {1}'.format(self.type, ex))

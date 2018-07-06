@@ -44,7 +44,6 @@ def make_request(backend, uri):
     Returns:
         the JSON loaded result from the request.
     """
-    path = config.options.get('backend').get(backend)
     bundle_path = config.options.get('cert_bundle')
     if bundle_path:
         SESSION.cert = bundle_path
@@ -53,22 +52,31 @@ def make_request(backend, uri):
     if ca_path:
         SESSION.verify = ca_path
 
-    try:
-        r = SESSION.get(
-            '{}/synse/version'.format(path),
-            timeout=config.options.get('timeout'))
-        r.raise_for_status()
-        version = r.json().get('api_version')
-    except Exception as ex:
-        logging.exception('Request failure [{} version] : {}'.format(
-            backend, ex))
-        raise ex
+    backend = config.options.get('backend').get(backend)
+    host = backend.get('host')
 
-    base = '{0}/synse/{1}/'.format(path, version)
+    if backend.get('api_version') is None:
+        try:
+            r = SESSION.get(
+                '{}/synse/version'.format(host),
+                timeout=config.options.get('timeout'))
+            r.raise_for_status()
+            backend['api_version'] = r.json().get('api_version')
+        except Exception as ex:
+            logging.exception('Request failure [{} version] : {}'.format(
+                backend, ex))
+            raise ex
+
+    api_version = backend.get('api_version')
+    base = '{0}/synse/{1}/'.format(host, api_version)
     try:
         result = SESSION.get(
             requests.compat.urljoin(base, uri),
             timeout=config.options.get('timeout'))
+        if result.status_code == 404:
+            logger.warning(
+                'Clearing API Version [{} {}]'.format(backend, result.text))
+            backend['api_version'] = None
         result.raise_for_status()
     except Exception as ex:
         logging.exception('Request failure [{} {}] : {}'.format(
