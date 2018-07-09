@@ -21,6 +21,7 @@ class Rack(graphene.ObjectType):
 
     id = graphene.String(required=True)
     backend = graphene.String(required=True)
+    synse_api_version = graphene.String(required=True)
 
     boards = graphene.List(
         lambda: Board,
@@ -63,3 +64,8 @@ class Rack(graphene.ObjectType):
                     id,
                     lambda x: x.get('id') == id,
                     self.get_boards())]
+
+    def resolve_synse_api_version(self, info):
+        """ Make request to backend synse-server to get api version
+        """
+        return util.make_version_request(self.backend)
