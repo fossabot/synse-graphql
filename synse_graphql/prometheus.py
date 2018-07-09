@@ -22,6 +22,7 @@ query = '''{
     racks {
         id
         backend
+        synse_api_version
         boards {
             id
             devices {
@@ -49,6 +50,7 @@ class Device(object):
 
     default_labels = [
         'backend_name',
+        'synse_api_version',
         'rack_id',
         'board_id',
         'device_id',
@@ -88,6 +90,7 @@ class Device(object):
     def labels(self):
         return [
             self._rack.get('backend'),
+            self._rack.get('synse_api_version'),
             self._rack.get('id'),
             self._board.get('id'),
             self._device.get('id'),

@@ -20,7 +20,8 @@ class TestRack(BaseSchemaTest):
     def test_query(self):
         keys = [
             "id",
-            "backend"
+            "backend",
+            "synse_api_version",
         ]
         self.assertItemsEqual(self.get_racks("test_racks")[0].keys(), keys)
 

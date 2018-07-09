@@ -34,6 +34,29 @@ def scan():
                 logger.exception(ex)
 
 
+def make_version_request(backend):
+    """ Request api version for provided backend, set entry in config
+
+    Args:
+        backend (str): backend to make the request for
+
+    Returns:
+        str: synse-server api version
+    """
+    _backend = config.options.get('backend').get(backend)
+    try:
+        r = SESSION.get(
+            '{}/synse/version'.format(_backend.get('host')),
+            timeout=config.options.get('timeout'))
+        r.raise_for_status()
+        _backend['api_version'] = r.json().get('api_version')
+        return _backend.get('api_version')
+    except Exception as ex:
+        logging.exception('Request failure [{} version] : {}'.format(
+            backend, ex))
+        raise ex
+
+
 def make_request(backend, uri):
     """Make a request to the provided URI.
 
@@ -52,23 +75,12 @@ def make_request(backend, uri):
     if ca_path:
         SESSION.verify = ca_path
 
-    backend = config.options.get('backend').get(backend)
-    host = backend.get('host')
+    _backend = config.options.get('backend').get(backend)
+    if _backend.get('api_version') is None:
+        make_version_request(backend)
 
-    if backend.get('api_version') is None:
-        try:
-            r = SESSION.get(
-                '{}/synse/version'.format(host),
-                timeout=config.options.get('timeout'))
-            r.raise_for_status()
-            backend['api_version'] = r.json().get('api_version')
-        except Exception as ex:
-            logging.exception('Request failure [{} version] : {}'.format(
-                backend, ex))
-            raise ex
-
-    api_version = backend.get('api_version')
-    base = '{0}/synse/{1}/'.format(host, api_version)
+    api_version = _backend.get('api_version')
+    base = '{0}/synse/{1}/'.format(_backend.get('host'), api_version)
     try:
         result = SESSION.get(
             requests.compat.urljoin(base, uri),
@@ -76,7 +88,7 @@ def make_request(backend, uri):
         if result.status_code == 404:
             logger.warning(
                 'Clearing API Version [{} {}]'.format(backend, result.text))
-            backend['api_version'] = None
+            _backend['api_version'] = None
         result.raise_for_status()
     except Exception as ex:
         logging.exception('Request failure [{} {}] : {}'.format(
