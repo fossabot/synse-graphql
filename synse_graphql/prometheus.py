@@ -13,6 +13,7 @@ import graphql.execution.executors.gevent
 import prometheus_client
 import prometheus_client.exposition
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Response
 from prometheus_client.core import _INF
 from pytz import utc
 
@@ -215,4 +216,6 @@ def refresh():
 
 
 def metrics():
-    return prometheus_client.exposition.generate_latest()
+    return Response(
+        prometheus_client.exposition.generate_latest(),
+        headers={'Content-Type': prometheus_client.CONTENT_TYPE_LATEST})

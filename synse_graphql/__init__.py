@@ -2,7 +2,7 @@
 
 
 __title__ = 'synse_graphql'
-__version__ = '2.1.2'
+__version__ = '2.1.3'
 __description__ = 'Synse GraphQL'
 __author__ = 'Vapor IO'
 __author_email__ = 'vapor@vapor.io'
