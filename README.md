@@ -1,6 +1,8 @@
 synse-graphql provides a GraphQL API that enables complex querying of your data center and IT equipment. The API comes with an interactive query application for exploration of the Synse APIs and provides a simple interface for common integrations.
 
 # Kick the tires
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-graphql.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-graphql?ref=badge_shield)
+
 
 ```bash
 make run
@@ -73,3 +75,7 @@ isort graphql_frontend tests -rc -vb --dont-skip=__init_.py --atomic
 
 - Tests assume a running, emulated synse-server on the same host. It uses `localhost` to talk to the router. If this isn't where you're running it, change the config.
 - `make test`
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-graphql.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-graphql?ref=badge_large)
